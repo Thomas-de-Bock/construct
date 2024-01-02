@@ -27,7 +27,8 @@ enum CON_TOKENTYPE {
   IF,
   FUNCTION,
   CMD,
-  MACRO
+  MACRO,
+  FUNCALL
 };
 
 
@@ -39,6 +40,7 @@ struct con_token {
   struct con_while* tok_while;
   struct con_if* tok_if;
   struct con_function* tok_function;
+  struct con_funcall* tok_funcall;
   struct con_cmd* tok_cmd;
   struct con_macro* tok_macro;
   std::vector<con_token*> tokens; // Only non-empty for if, while and function tokens
@@ -80,6 +82,11 @@ struct con_cmd {
   std::string command;
   std::string arg1;
   std::string arg2;
+};
+
+struct con_funcall {
+  std::string funcname;
+  std:: vector<std::string> arguments;
 };
 
 #endif

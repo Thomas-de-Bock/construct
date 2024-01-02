@@ -20,6 +20,7 @@ void apply_macro_to_token(con_token& token, std::vector<con_macro> macros);
 
 // Converts args to macros and adds tag with same name to child tokens
 void apply_functions(std::vector<con_token*>& tokens);
+void apply_funcalls(std::vector<con_token*>& tokens);
 void apply_whiles(std::vector<con_token*>& tokens);
 void apply_ifs(std::vector<con_token*>& tokens);
 void apply_macros(std::vector<con_token*>& tokens, std::vector<con_macro> macros);

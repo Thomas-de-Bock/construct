@@ -27,6 +27,8 @@ CON_TOKENTYPE get_token_type(string line) {
     return FUNCTION;
   if(line.substr(0, 8) == "section ")
     return SECTION;
+  if(line.substr(0, 5) == "call " && line.find('(') != string::npos && line.find(')') != string::npos)
+    return FUNCALL;
   if(line.find(' ') == string::npos && line[line.size()-1] == ':')
     return TAG;
   return CMD;
@@ -142,18 +144,31 @@ con_cmd* parse_cmd(string line) {
     tok_cmd->arg2 = line_split[3];
   return tok_cmd;
 }
-con_function* parse_function(std::string line) {
+con_function* parse_function(string line) {
   con_function* tok_function = new con_function();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" ():,"));
-  tok_function->name = line_split[1];
-  for(int i = 2; i < line_split.size()-1; i+=2) {
+  boost::split(line_split, line, boost::is_any_of("():,"));
+  tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
+  for(int i = 1; i < line_split.size()-2; i++) {
     if(line_split[i].empty()) {
       continue;
     }
-    tok_function->arguments.push_back(line_split[i]);
+    tok_function->arguments.push_back(line_split[i]); // macros filter out spaces anyway when applied
   }
   return tok_function;
+}
+con_funcall* parse_funcall(string line) {
+  con_funcall* tok_funcall = new con_funcall();
+  vector<string> line_split;
+  boost::split(line_split, line, boost::is_any_of("(),"));
+  tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
+  for(int i = 1; i < line_split.size()-1; i++) {
+    if(line_split[i].empty()) {
+      continue;
+    }
+    tok_funcall->arguments.push_back(line_split[i]); // macros filter out spaces anyway when applied
+  }
+  return tok_funcall;
 }
 
 // Does not expect formatted line, only lowercase
@@ -189,6 +204,8 @@ con_token* parse_line(string line) {
     case FUNCTION:
       token->tok_function = parse_function(f_line);
       break;
+    case FUNCALL:
+      token->tok_funcall = parse_funcall(f_line);
     case SECTION:
       token->tok_section = parse_section(f_line);
       break;

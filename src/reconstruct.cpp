@@ -1,4 +1,5 @@
 #include "reconstruct.h"
+#include "construct_types.h"
 
 using namespace std;
 int if_amnt = 0;
@@ -192,6 +193,35 @@ void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
     }
   }
 }
+void apply_funcalls(std::vector<con_token*>& tokens) {
+  for(int i = 0; i < tokens.size(); i++) {
+    apply_funcalls(tokens[i]->tokens);
+    if(tokens[i]->tok_type != FUNCALL) {
+      continue;
+    }
+    vector<string>* args = &tokens[i]->tok_funcall->arguments;
+    vector<con_token*> arg_tokens;
+    for(int j = 0; j < args->size(); j++) {
+      con_token* arg_tok = new con_token();
+      arg_tok->tok_type = CMD;
+      con_cmd* arg_cmd = new con_cmd();
+      arg_tok->tok_cmd = arg_cmd;
+      arg_cmd->command = "mov";
+      arg_cmd->arg1 = reg_to_str(j, BIT64);
+      arg_cmd->arg2 = (*args)[j];
+      arg_tokens.push_back(arg_tok);
+    }
+    con_token* call_tok = new con_token();
+    call_tok->tok_type = CMD;
+    con_cmd* call_cmd = new con_cmd();
+    call_tok->tok_cmd = call_cmd;
+    call_cmd->command = "call";
+    call_cmd->arg1 = tokens[i]->tok_funcall->funcname;
+    arg_tokens.push_back(call_tok);
+
+    tokens.insert(tokens.begin()+i+1, arg_tokens.begin(), arg_tokens.end());
+  }
+}
 
 void apply_functions(std::vector<con_token*>& tokens) {
   vector<con_token*>* subtokens = &tokens;
@@ -231,7 +261,21 @@ void apply_functions(std::vector<con_token*>& tokens) {
 void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros) {
   for(int i = 0; i < tokens.size(); i++) {
     if(tokens[i]->tok_type == MACRO) {
-      knownmacros.push_back(*tokens[i]->tok_macro);
+      // Filter spaces from macro and value pair
+      con_macro* f_macro = new con_macro(); 
+      f_macro->macro = "";
+      f_macro->value = "";
+      for(int j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
+        if(tokens[i]->tok_macro->macro[j] != ' ') {
+          f_macro->macro += tokens[i]->tok_macro->macro[j];
+        }
+      }
+      for(int j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
+        if(tokens[i]->tok_macro->value[j] != ' ')
+          f_macro->value += tokens[i]->tok_macro->value[j];
+      }
+      knownmacros.push_back(*f_macro);
+      delete f_macro;
       continue;
     }
     apply_macro_to_token(*tokens[i], knownmacros);
@@ -343,7 +387,7 @@ void linearize_tokens(vector<con_token*>& tokens) {
 std::string tokens_to_nasm(std::vector<con_token*>& tokens) {
   string output = "";
   for(int i = 0; i < tokens.size(); i++) {
-    if(tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO) {
+    if(tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO || tokens[i]->tok_type == FUNCALL) {
       continue;
     }
     output += "\n";

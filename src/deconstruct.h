@@ -20,5 +20,6 @@ con_section* parse_section(std::string line);
 con_tag* parse_tag(std::string line);
 con_cmd* parse_cmd(std::string line);
 con_function* parse_function(std::string line);
+con_funcall* parse_funcall(std::string line);
 con_token* parse_line(std::string line);
 std::vector<con_token*> parse_construct(std::string code);

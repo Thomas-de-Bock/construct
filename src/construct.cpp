@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
   apply_functions(tokens);
   apply_ifs(tokens);
   apply_whiles(tokens);
+  apply_funcalls(tokens);
   std::vector<con_macro> empty_macros;
   apply_macros(tokens, empty_macros);
   linearize_tokens(tokens);
