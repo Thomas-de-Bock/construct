@@ -148,6 +148,9 @@ con_function* parse_function(std::string line) {
   boost::split(line_split, line, boost::is_any_of(" ():,"));
   tok_function->name = line_split[1];
   for(int i = 2; i < line_split.size()-1; i+=2) {
+    if(line_split[i].empty()) {
+      continue;
+    }
     tok_function->arguments.push_back(line_split[i]);
   }
   return tok_function;
