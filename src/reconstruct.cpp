@@ -4,6 +4,7 @@
 using namespace std;
 int if_amnt = 0;
 int while_amnt = 0;
+CON_BITWIDTH bitwidth = BIT64;
 
 string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth) {
   switch(bitwidth) {
@@ -207,7 +208,7 @@ void apply_funcalls(std::vector<con_token*>& tokens) {
       con_cmd* arg_cmd = new con_cmd();
       arg_tok->tok_cmd = arg_cmd;
       arg_cmd->command = "mov";
-      arg_cmd->arg1 = reg_to_str(j, BIT64);
+      arg_cmd->arg1 = reg_to_str(j, bitwidth);
       arg_cmd->arg2 = (*args)[j];
       arg_tokens.push_back(arg_tok);
     }
@@ -243,7 +244,7 @@ void apply_functions(std::vector<con_token*>& tokens) {
       con_token* arg_tok = new con_token;
       arg_tok->tok_type = MACRO;
       con_macro* arg_macro = new con_macro;
-      arg_macro->value = reg_to_str(j, BIT64); //TODO bitwidths flag
+      arg_macro->value = reg_to_str(j, bitwidth);
       arg_macro->macro = crntfunc->arguments[j];
       arg_tok->tok_macro = arg_macro;
 

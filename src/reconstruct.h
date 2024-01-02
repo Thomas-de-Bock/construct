@@ -6,6 +6,7 @@
 // Used for naming tags
 extern int if_amnt;
 extern int while_amnt;
+extern CON_BITWIDTH bitwidth;
 
 std::string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth);
 std::string comparison_to_string(CON_COMPARISON condition);

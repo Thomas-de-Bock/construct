@@ -1,11 +1,23 @@
 #include "deconstruct.h"
 #include "reconstruct.h"
+#include "construct_flags.h"
 
 int main(int argc, char** argv) {
-  std::ifstream inpfile(argv[1]);
+  std::string path;
+  if(handle_flags(argc, argv, &path) != 0) {
+    std::cout << "Some flag(s) not set" << std::endl;
+    return 0;
+  }
+  if(path.empty()) {
+    std::cout << "No input file specified" << std::endl;
+    return 0;
+  }
+
+  std::ifstream inpfile(path);
   std::stringstream buffer;
   buffer << inpfile.rdbuf();
   std::vector<con_token*> tokens = parse_construct(buffer.str());
+
   
   // Make _start global
   con_token* glob_tok = new con_token();
