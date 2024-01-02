@@ -87,10 +87,10 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens) {
 
   vector<con_token*> delinearized_tokens = parent_token->tokens;
 
-  free(parent_section);
-  free(parent_token);
+  delete parent_section;
+  delete parent_token;
 
-  return parent_token->tokens;
+  return delinearized_tokens;
 }
 
 con_macro* parse_macro(string line) {

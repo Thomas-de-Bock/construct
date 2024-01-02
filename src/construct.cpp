@@ -13,6 +13,7 @@ int main(int argc, char** argv) {
   con_cmd* glob_cmd = new con_cmd;
   glob_tok->tok_cmd = glob_cmd;
   glob_cmd->command = "global _start";
+  glob_tok->indentation = 0;
 
   tokens.insert(tokens.begin(), glob_tok);
 
