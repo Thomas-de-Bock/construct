@@ -45,7 +45,7 @@ CON_COMPARISON str_to_comparison(string comp) {
     return G;
   if(comp == "le")
     return LE;
-  if(comp == "GE")
+  if(comp == "ge")
     return GE;
   //ERROR
 }

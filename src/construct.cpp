@@ -18,14 +18,12 @@ int main(int argc, char** argv) {
   buffer << inpfile.rdbuf();
   std::vector<con_token*> tokens = parse_construct(buffer.str());
 
-  
   // Make _start global
   con_token* glob_tok = new con_token();
   glob_tok->tok_type = CMD;
   con_cmd* glob_cmd = new con_cmd;
   glob_tok->tok_cmd = glob_cmd;
   glob_cmd->command = "global _start";
-
   tokens.insert(tokens.begin(), glob_tok);
 
   tokens = delinearize_tokens(tokens);
