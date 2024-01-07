@@ -313,7 +313,7 @@ void apply_whiles(vector<con_token*>& tokens) {
     jmpbck_tok->tok_type = CMD;
     con_cmd* jmpbck_cmd = new con_cmd;
     jmpbck_tok->tok_cmd = jmpbck_cmd;
-    jmpbck_cmd->command = "j" + comparison_to_string(tokens[i]->tok_while->condition.op);
+    jmpbck_cmd->command = "jmp";
     jmpbck_cmd->arg1 = starttag_name;
 
     con_token* endwhile_tok = new con_token;
@@ -329,13 +329,12 @@ void apply_whiles(vector<con_token*>& tokens) {
     startwhile_tag->name = starttag_name; 
 
     while_amnt++;
-    tokens[i]->tokens.insert(tokens[i]->tokens.begin(), startwhile_tok);
     tokens[i]->tokens.insert(tokens[i]->tokens.begin(), jmp_tok);
     tokens[i]->tokens.insert(tokens[i]->tokens.begin(), cmp_tok);
-    tokens[i]->tokens.push_back(cmp_tok);
+    tokens[i]->tokens.insert(tokens[i]->tokens.begin(), startwhile_tok);
     tokens[i]->tokens.push_back(jmpbck_tok);
     tokens[i]->tokens.push_back(endwhile_tok);
-    
+    // so: starttag, cmp, jmp ... jmp, endtag
   }
 }
 void apply_ifs(vector<con_token*>& tokens) {
