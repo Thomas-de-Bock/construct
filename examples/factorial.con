@@ -1,0 +1,23 @@
+extern printf
+
+section .text
+
+function factorial(num):
+	!i rsi
+	!result rax
+	mov i, 2
+	mov result, 1
+	while i le num:
+		mul i
+		inc i
+  
+function main():
+	call factorial(3)
+	!result rax
+	call printf(fmt, result)
+
+	mov rax, 60
+	syscall
+
+section .data
+fmt: db "%d", 10, 0
