@@ -1,10 +1,13 @@
 #include "deconstruct.h"
 #include "reconstruct.h"
 #include "construct_flags.h"
+#include<iostream>
+#include<fstream>
 
 int main(int argc, char** argv) {
   std::string path;
-  if(handle_flags(argc, argv, &path) != 0) {
+  std::string outpath;
+  if(handle_flags(argc, argv, &path, &outpath) != 0) {
     std::cout << "Some flag(s) not set" << std::endl;
     return 0;
   }
@@ -35,5 +38,8 @@ int main(int argc, char** argv) {
   apply_macros(tokens, empty_macros);
   linearize_tokens(tokens);
 
-  std::cout << tokens_to_nasm(tokens);
+  std::ofstream outfile;
+  outfile.open(outpath);
+  outfile << tokens_to_nasm(tokens);
+  outfile.close();
 }
