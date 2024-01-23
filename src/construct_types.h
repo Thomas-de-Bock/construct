@@ -17,7 +17,8 @@ enum CON_COMPARISON {
   L,
   G,
   LE,
-  GE
+  GE,
+  ERROR,
 };
 
 enum CON_TOKENTYPE {

@@ -97,6 +97,7 @@ string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth) {
       }
     break;
   }
+  // ERROR
 }
 
 string comparison_to_string(CON_COMPARISON condition) {
@@ -132,6 +133,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition) {
     case GE:
       return L;
   }
+  return ERROR;
 }
 
 void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
@@ -390,7 +392,6 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens) {
     if(tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO || tokens[i]->tok_type == FUNCALL) {
       continue;
     }
-    output += "\n";
     if(tokens[i]->tok_type == CMD) {
       output += tokens[i]->tok_cmd->command;
       if(!tokens[i]->tok_cmd->arg1.empty()) {
@@ -399,14 +400,17 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens) {
       if(!tokens[i]->tok_cmd->arg2.empty()) {
         output += ", " + tokens[i]->tok_cmd->arg2;
       }
+      output += "\n";
       continue;
     }
     if(tokens[i]->tok_type == TAG) {
       output += tokens[i]->tok_tag->name + ":";
+      output += "\n";
       continue;
     }
     if(tokens[i]->tok_type == SECTION) {
       output += "section " + tokens[i]->tok_section->name;
+      output += "\n";
       continue;
     }
   }
