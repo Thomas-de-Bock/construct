@@ -1,7 +1,8 @@
 NAME = construct
 
 CC = g++
-CFLAGS = -O3 -march=native -mtune=native
+CFLAGS = -Wall -Wextra #-Werror 
+COPTS = -O3 -march=native -mtune=native
 
 SRC_FOLDER = src
 BIN_FOLDER = bin
@@ -22,12 +23,12 @@ OBJS := $(subst $(SRC_FOLDER), $(OBJ_FOLDER), $(OBJS))
 all: $(OUTPUT_FILE)
 
 $(OUTPUT_FILE):	$(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(OUTPUT_FILE)
+	$(CC) $(CFLAGS) $(COPTS) $(OBJS) -o $(OUTPUT_FILE)
 	@echo "Built executable $(NAME) in $(abspath $(BIN_FOLDER))"
 
 $(OBJ_FOLDER)/%.o: $(SRC_FOLDER)/%.cpp
 	@mkdir -p $(OBJ_FOLDER)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(COPTS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_FOLDER)
