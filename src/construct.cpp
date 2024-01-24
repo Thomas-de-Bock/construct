@@ -1,17 +1,22 @@
-#include "deconstruct.h"
-#include "reconstruct.h"
-#include "construct_flags.h"
-#include<iostream>
-#include<fstream>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "construct_types.h"
+#include "deconstruct.h"     // parse_construct()
+#include "reconstruct.h"     // linearize_tokens()
+#include "construct_flags.h" // handle_flags()
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   std::string path;
   std::string outpath;
-  if(handle_flags(argc, argv, &path, &outpath) != 0) {
+  if (handle_flags(argc, argv, &path, &outpath) != 0) {
     std::cout << "Some flag(s) not set" << std::endl;
     return 0;
   }
-  if(path.empty()) {
+  if (path.empty()) {
     std::cout << "No input file specified" << std::endl;
     return 0;
   }

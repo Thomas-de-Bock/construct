@@ -1,8 +1,8 @@
-#ifndef CON_TYPES_H
-#define CON_TYPES_H
+#ifndef CONSTRUCT_TYPES_H_
+#define CONSTRUCT_TYPES_H_
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 enum CON_BITWIDTH {
   BIT8,
@@ -86,7 +86,7 @@ struct con_cmd {
 
 struct con_funcall {
   std::string funcname;
-  std:: vector<std::string> arguments;
+  std::vector<std::string> arguments;
 };
 
-#endif
+#endif // CONSTRUCT_TYPES_H_
