@@ -8,13 +8,12 @@ extern int if_amnt;
 extern int while_amnt;
 extern CON_BITWIDTH bitwidth;
 
-std::string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth);
+std::string reg_to_str(uint8_t call_num);
 std::string comparison_to_string(CON_COMPARISON condition);
 CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition);
 
 // The following functions transform the construct specific tokens to nasm ones,
 // the parent construct tokens remain, but are removed during linearization
-void apply_macro_to_token(con_token& token, std::vector<con_macro> macros);
 
 // Converts args to macros and adds tag with same name to child tokens
 void apply_whiles(std::vector<con_token*>& tokens);

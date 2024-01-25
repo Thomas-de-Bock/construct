@@ -46,7 +46,7 @@ struct con_token {
   std::vector<con_token*> tokens; // Only non-empty for if, while and function tokens
 };
 
-struct con_condition {
+struct _con_condition {
   CON_COMPARISON op;
   std::string arg1;
   std::string arg2;
@@ -61,11 +61,11 @@ struct con_tag {
 };
 
 struct con_while {
-  con_condition condition;
+  _con_condition condition;
 };
 
 struct con_if {
-  con_condition condition;
+  _con_condition condition;
 };
 
 struct con_function {

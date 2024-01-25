@@ -7,7 +7,7 @@ int if_amnt = 0;
 int while_amnt = 0;
 CON_BITWIDTH bitwidth = BIT64;
 
-string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth)
+string reg_to_str(uint8_t call_num)
 {
   switch (bitwidth) {
     case BIT8:
@@ -138,7 +138,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
   return E; //ERROR but there is no error value in the enum
 }
 
-void apply_macro_to_token(con_token& token, vector<con_macro> macros)
+static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
 {
   if (token.tok_type != WHILE && token.tok_type != IF && token.tok_type != CMD) {
     return;
@@ -306,7 +306,7 @@ void apply_functions(std::vector<con_token*>& tokens)
       con_token* arg_tok = new con_token;
       arg_tok->tok_type = MACRO;
       con_macro* arg_macro = new con_macro;
-      arg_macro->value = reg_to_str(j, bitwidth);
+      arg_macro->value = reg_to_str(j);
       arg_macro->macro = crntfunc->arguments[j];
       arg_tok->tok_macro = arg_macro;
 
@@ -363,7 +363,7 @@ void apply_funcalls(std::vector<con_token*>& tokens)
       con_cmd* arg_cmd = new con_cmd();
       arg_tok->tok_cmd = arg_cmd;
       arg_cmd->command = "mov";
-      arg_cmd->arg1 = reg_to_str(j, bitwidth);
+      arg_cmd->arg1 = reg_to_str(j);
       arg_cmd->arg2 = (*args)[j];
       arg_tokens.push_back(arg_tok);
     }

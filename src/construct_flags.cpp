@@ -1,6 +1,8 @@
 #include "construct_flags.h"
 #include "construct_types.h"
 
+extern CON_BITWIDTH bitwidth;
+
 using namespace std;
 
 int set_bitwidth(char* argv)
