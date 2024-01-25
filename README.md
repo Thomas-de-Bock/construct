@@ -37,7 +37,7 @@ fmt: db "%s", 10, 0
 - If statements: If statements, like while loops, take a single [conditional](#conditionals) statement
 - Functions:
   Functions are declared with the "function" keyword, a "ret" instruction is added to functions in post-processing, so functions will not flow into eachother.
-- Function calls: Functions can be called with any number of arguments, independent of the function decleration.
+- Function calls: Functions can be called with any number of arguments, independent of the function decleration. 
   If the amount of arguments used to call a function is more than its decleration states, they can be accessed like normal with their respective registers / stack address.
   Construct function calls, like NASM, use the "call" keyword. Functions can still be called without parentheses or arguments, NASM-style.
 - Macros: Construct macros can only be used in their respective scopes. Construct macros are declared with the '!' character and cannot contain whitespaces.
@@ -58,4 +58,3 @@ Neither side of the comparison can contains whitespaces.
 ### Required flags
 - `-f (format)`: Can be either "elf64", "elf32", "elf16", "elf8" and decides the registers used for funcion calls.
 - `-i (input file)`: Specifies the input file to be compiled (-i is not neccesary)
-- `-o (output file)`: Specifies the output file to be created

@@ -1,22 +1,17 @@
-#include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include "construct_types.h"
-#include "deconstruct.h"     // parse_construct()
-#include "reconstruct.h"     // linearize_tokens()
-#include "construct_flags.h" // handle_flags()
+#include "deconstruct.h"
+#include "reconstruct.h"
+#include "construct_flags.h"
+#include<iostream>
+#include<fstream>
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   std::string path;
   std::string outpath;
-  if (handle_flags(argc, argv, &path, &outpath) != 0) {
+  if(handle_flags(argc, argv, &path, &outpath) != 0) {
     std::cout << "Some flag(s) not set" << std::endl;
     return 0;
   }
-  if (path.empty()) {
+  if(path.empty()) {
     std::cout << "No input file specified" << std::endl;
     return 0;
   }
@@ -34,7 +29,6 @@ int main(int argc, char** argv)
   glob_cmd->command = "global _start";
   tokens.insert(tokens.begin(), glob_tok);
 
-  // Order dependant: some tokens are replaced with macros, so apply_macro() must be at the end.
   tokens = delinearize_tokens(tokens);
   apply_functions(tokens);
   apply_ifs(tokens);
