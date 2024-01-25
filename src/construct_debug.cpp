@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include "construct_debug.h"
 #include "construct_types.h"
 #include "reconstruct.h"     // comparison_to_string()
@@ -24,7 +25,7 @@ std::string tokentype_to_string(CON_TOKENTYPE type)
     case FUNCALL:
       return "funcall";
   }
-  return "unknown";
+  throw std::invalid_argument("Invalid token type: "+std::to_string(static_cast<int>(type)));
 }
 
 std::string token_to_string(con_token token)

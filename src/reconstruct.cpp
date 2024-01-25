@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include "reconstruct.h"
 #include "construct_types.h"
 
@@ -101,7 +102,7 @@ string reg_to_str(uint8_t call_num)
       }
     break;
   }
-  return "unknown";
+  throw invalid_argument("Invalid bitwidth or call_num: bitwidth="+to_string(static_cast<int>(bitwidth))+" call_num="+to_string(static_cast<int>(call_num)));
 }
 string comparison_to_string(CON_COMPARISON condition)
 {
@@ -119,7 +120,7 @@ string comparison_to_string(CON_COMPARISON condition)
     case GE:
       return "ge";
   }
-  return "unknown";
+  throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
 }
 CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
 {
@@ -137,7 +138,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
     case GE:
       return L;
   }
-  return E; //ERROR but there is no error value in the enum
+  throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
 }
 
 static void apply_macro_to_token(con_token& token, vector<con_macro> macros)

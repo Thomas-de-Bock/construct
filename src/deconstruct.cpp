@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <stdexcept>
 #include "deconstruct.h"
 #include "construct_types.h"
 
@@ -111,7 +112,7 @@ CON_COMPARISON str_to_comparison(string comp)
     return LE;
   if (comp == "ge")
     return GE;
-  return E; //ERROR but there is no error value in the enum
+  throw invalid_argument("Invalid comparison sing: "+comp);
 }
 
 
