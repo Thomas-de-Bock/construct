@@ -5,20 +5,20 @@ using namespace std;
 
 int set_bitwidth(char* argv)
 {
-  if (strcmp(argv, "elf64") == 0) {
-    bitwidth = BIT64;
-    return 0;
-  }
-  if (strcmp(argv, "elf32") == 0) {
-    bitwidth = BIT32;
+  if (strcmp(argv, "elf8") == 0) {
+    bitwidth = BIT8;
     return 0;
   }
   if (strcmp(argv, "elf16") == 0) {
     bitwidth = BIT16;
     return 0;
   }
-  if (strcmp(argv, "elf8") == 0) {
-    bitwidth = BIT8;
+  if (strcmp(argv, "elf32") == 0) {
+    bitwidth = BIT32;
+    return 0;
+  }
+  if (strcmp(argv, "elf64") == 0) {
+    bitwidth = BIT64;
     return 0;
   }
   cout << "\"" << argv << "\" not a supported format" << endl;
