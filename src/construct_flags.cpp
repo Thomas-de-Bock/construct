@@ -9,20 +9,20 @@ using namespace std;
 
 int set_bitwidth(char* argv)
 {
-  if (string(argv) == "elf64") {
-    bitwidth = BIT64;
-    return 0;
-  }
-  if (string(argv) == "elf32") {
-    bitwidth = BIT32;
+  if (string(argv) == "elf8") {
+    bitwidth = BIT8;
     return 0;
   }
   if (string(argv) == "elf16") {
     bitwidth = BIT16;
     return 0;
   }
-  if (string(argv) == "elf8") {
-    bitwidth = BIT8;
+  if (string(argv) == "elf32") {
+    bitwidth = BIT32;
+    return 0;
+  }
+  if (string(argv) == "elf64") {
+    bitwidth = BIT64;
     return 0;
   }
   cout << "\"" << argv << "\" not a supported format" << endl;

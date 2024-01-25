@@ -156,7 +156,6 @@ static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
             (pos = token.tok_while->condition.arg1.find(crntmacro->macro)) != string::npos &&
             (pos == 0 || !isalpha(token.tok_while->condition.arg1[pos-1])) &&
             (pos == token.tok_while->condition.arg1.size()-1 || !isalpha(token.tok_while->condition.arg1[pos+crntmacro->macro.size()]))) {
-
           token.tok_while->condition.arg1.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
         if (!token.tok_while->condition.arg2.empty() &&
