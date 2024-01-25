@@ -1,8 +1,66 @@
 #include "construct_types.h"
 #include "deconstruct.h"
-#include <boost/algorithm/string/classification.hpp>
 
 using namespace std;
+
+static const char& FIRST_UPPERCASE_LETTER = 'A';
+static const char& LAST_UPPERCASE_LETTER = 'Z';
+static bool is_upper(const char& c)
+{
+  return c >= FIRST_UPPERCASE_LETTER && c <= LAST_UPPERCASE_LETTER;
+}
+static char to_lower(const char& c)
+{
+  return is_upper(c) ? c - FIRST_UPPERCASE_LETTER : c;
+}
+static void to_lower(string& str)
+{
+  string tmp;
+  for (string::iterator it = str.begin(); it != str.end(); ++it) {
+    tmp.push_back(to_lower(*it));
+  }
+  str = tmp;
+}
+
+class IsAnyOf
+{
+private:
+  string chars;
+public:
+  IsAnyOf() = default;
+  IsAnyOf(const string& _chars) : chars(_chars) {}
+  IsAnyOf(const char*& _chars) : chars(_chars) {}
+  ~IsAnyOf() = default;
+  IsAnyOf(const IsAnyOf& other) = delete; // should save unique sorted chars for that
+  IsAnyOf& operator=(const IsAnyOf& other) = delete;
+
+  bool operator()(const char& c) const {
+    for (string::const_iterator it = chars.cbegin(); it != chars.cend(); ++it) {
+      if (*it == c) return true;
+    }
+    return false;
+  }
+};
+
+template <typename Predicate>
+static void split(vector<string>& result, const string& input, const Predicate& pred, const bool& compress_adj_delims = false)
+{
+  string tmp;
+  bool prev_is_delim = false;
+  for (string::const_iterator it = input.cbegin(); it != input.cend(); ++it) {
+    if (pred(*it)) {
+      if (prev_is_delim && compress_adj_delims) continue;
+      result.push_back(tmp);
+      tmp.clear();
+      prev_is_delim = true;
+    } else {
+      tmp.push_back(*it);
+      prev_is_delim = false;
+    }
+  }
+  result.push_back(tmp);
+}
+
 int get_line_indentation(string line)
 {
   int indentation = 0;
@@ -103,7 +161,7 @@ con_section* parse_section(string line)
 {
   con_section* tok_section = new con_section();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" "));
+  split(line_split, line, IsAnyOf(" "));
   tok_section->name = line_split[1];
   return tok_section;
 }
@@ -117,7 +175,7 @@ con_while* parse_while(string line)
 {
   con_while* tok_while = new con_while();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" "));
+  split(line_split, line, IsAnyOf(" "));
   tok_while->condition.arg1 = line_split[1];
   tok_while->condition.op = str_to_comparison(line_split[2]);
   tok_while->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1); // to remove :
@@ -127,7 +185,7 @@ con_if* parse_if(string line)
 {
   con_if* tok_if = new con_if();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" "));
+  split(line_split, line, IsAnyOf(" "));
   tok_if->condition.arg1 = line_split[1];
   tok_if->condition.op = str_to_comparison(line_split[2]);
   tok_if->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1);
@@ -137,7 +195,7 @@ con_function* parse_function(string line)
 {
   con_function* tok_function = new con_function();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of("():,"));
+  split(line_split, line, IsAnyOf("():,"));
   tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
   for (size_t i = 1; i < line_split.size()-2; i++) {
     if (line_split[i].empty()) {
@@ -151,7 +209,7 @@ con_cmd* parse_cmd(string line)
 {
   con_cmd* tok_cmd = new con_cmd();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" ,"));
+  split(line_split, line, IsAnyOf(" ,"));
   tok_cmd->command = line_split[0];
   if (line_split.size() > 1)
     tok_cmd->arg1 = line_split[1];
@@ -171,7 +229,7 @@ con_funcall* parse_funcall(string line)
 {
   con_funcall* tok_funcall = new con_funcall();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of("(),"));
+  split(line_split, line, IsAnyOf("(),"));
   tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
   for (size_t i = 1; i < line_split.size()-1; i++) {
     if (line_split[i].empty()) {
@@ -233,8 +291,8 @@ con_token* parse_line(string line)
 vector<con_token*> parse_construct(string code)
 {
   vector<string> code_split;
-  boost::split(code_split, code, boost::is_any_of("\n"), boost::token_compress_on);
-  boost::to_lower(code);
+  split(code_split, code, IsAnyOf("\n"), true);
+  to_lower(code);
   vector<con_token*> tokens;
   bool in_data = false;
   for (size_t i = 0; i < code_split.size(); i++) {

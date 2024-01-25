@@ -2,7 +2,6 @@
 #define CONSTRUCT_FLAGS_H_
 
 #include <string>
-#include <cstring>
 #include <iostream>
 #include "reconstruct.h"
 

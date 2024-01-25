@@ -7,19 +7,19 @@ using namespace std;
 
 int set_bitwidth(char* argv)
 {
-  if (strcmp(argv, "elf8") == 0) {
+  if (string(argv) == "elf8") {
     bitwidth = BIT8;
     return 0;
   }
-  if (strcmp(argv, "elf16") == 0) {
+  if (string(argv) == "elf16") {
     bitwidth = BIT16;
     return 0;
   }
-  if (strcmp(argv, "elf32") == 0) {
+  if (string(argv) == "elf32") {
     bitwidth = BIT32;
     return 0;
   }
-  if (strcmp(argv, "elf64") == 0) {
+  if (string(argv) == "elf64") {
     bitwidth = BIT64;
     return 0;
   }
@@ -33,18 +33,18 @@ int handle_flags(int argc, char** argv, string* path, string* outpath)
   bool path_set = false;
   bool outpath_set = false;
   for (int i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "-f") == 0 && set_bitwidth(argv[i+1]) == 0) {
+    if (string(argv[i]) == "-f" && set_bitwidth(argv[i+1]) == 0) {
       bitwidth_set = true;
       i++;
       continue;
     }
-    if (strcmp(argv[i], "-i") == 0) {
+    if (string(argv[i]) == "-i") {
       path_set = true;
       i++;
       (*path) = argv[i];
       continue;
     }
-    if (strcmp(argv[i], "-o") == 0) {
+    if (string(argv[i]) == "-o") {
       outpath_set = true;
       i++;
       (*outpath) = argv[i];

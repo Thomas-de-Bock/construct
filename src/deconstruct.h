@@ -2,9 +2,6 @@
 #define DECONSTRUCT_H_
 
 #include "construct_debug.h"
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <sstream>
 #include <iostream>
