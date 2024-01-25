@@ -1,6 +1,6 @@
-#include<string>
-#include<iostream>
-#include<stdint.h>
+#include <string>
+#include <iostream>
+#include <stdint.h>
 #include "construct_types.h"
 
 // Used for naming tags
@@ -16,7 +16,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition);
 void linearize_tokens(std::vector<con_token*>& tokens);
 void apply_macro_to_token(con_token& token, std::vector<con_macro> macros);
 
-// The following functions transform the construct specific tokens to nasm ones, 
+// The following functions transform the construct specific tokens to nasm ones,
 // the parent construct tokens remain, but are removed during linearization
 
 // Converts args to macros and adds tag with same name to child tokens

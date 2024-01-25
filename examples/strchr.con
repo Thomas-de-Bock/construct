@@ -3,10 +3,9 @@ extern printf
 section .text
 function strchr(str, chr):
 	!ptrresult rax
-	!findchr sil
 	mov ptrresult, 0
 	while byte[str] ne 0:
-		if byte[str] e findchr:
+		if byte[str] e chr:
 			mov ptrresult, str
 			ret
 		inc str

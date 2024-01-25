@@ -10,7 +10,7 @@ function factorial(num):
 	while i le num:
 		mul i
 		inc i
-  
+
 function main():
 	call factorial(3)
 	!result rax

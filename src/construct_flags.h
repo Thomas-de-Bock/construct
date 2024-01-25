@@ -1,6 +1,6 @@
-#include<string>
-#include<cstring>
-#include<iostream>
+#include <string>
+#include <cstring>
+#include <iostream>
 #include "reconstruct.h"
 
 int set_bitwidth(char* argv);
