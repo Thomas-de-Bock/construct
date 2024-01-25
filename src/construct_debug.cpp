@@ -17,6 +17,8 @@ std::string tokentype_to_string(CON_TOKENTYPE type)
       return "cmd";
     case MACRO:
       return "macro";
+    case FUNCALL:
+      return "funcall";
   }
   return "unknown";
 }
@@ -39,7 +41,7 @@ std::string token_to_string(con_token token)
       break;
     case FUNCTION:
       tokstring += ", function: " + token.tok_function->name + ", arguments: ";
-      for (int i = 0; i < token.tok_function->arguments.size(); i++) {
+      for (size_t i = 0; i < token.tok_function->arguments.size(); i++) {
         if (i != 0) {
           tokstring += ", ";
         }
@@ -60,10 +62,12 @@ std::string token_to_string(con_token token)
     case MACRO:
       tokstring += ", macro: " + token.tok_macro->macro + ", value: " + token.tok_macro->value;
       break;
+    default: // FUNCALL
+      break;
   }
   if (token.tokens.size() > 0) {
     tokstring += ", tokens: {\n";
-    for (int i = 0; i < token.tokens.size(); i++) {
+    for (size_t i = 0; i < token.tokens.size(); i++) {
       tokstring += token_to_string(*token.tokens[i]) + "\n";
     }
     tokstring += "}";

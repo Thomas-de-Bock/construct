@@ -99,6 +99,7 @@ string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth)
       }
     break;
   }
+  return "unknown";
 }
 string comparison_to_string(CON_COMPARISON condition)
 {
@@ -134,6 +135,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
     case GE:
       return L;
   }
+  return E; //ERROR but there is no error value in the enum
 }
 
 void apply_macro_to_token(con_token& token, vector<con_macro> macros)
@@ -142,7 +144,7 @@ void apply_macro_to_token(con_token& token, vector<con_macro> macros)
     return;
   }
   // Unoptimal, but more clear imo
-  for (int i = 0; i < macros.size(); i++) {
+  for (size_t i = 0; i < macros.size(); i++) {
     con_macro* crntmacro = &macros[i];
     size_t pos;
     switch (token.tok_type) {
@@ -188,13 +190,15 @@ void apply_macro_to_token(con_token& token, vector<con_macro> macros)
           token.tok_cmd->arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
       break;
+      default:
+      break;
     }
   }
 }
 
 void apply_whiles(vector<con_token*>& tokens)
 {
-  for (int i = 0; i< tokens.size(); i++) {
+  for (size_t i = 0; i< tokens.size(); i++) {
     apply_whiles(tokens[i]->tokens);
     if (tokens[i]->tok_type != WHILE) {
       continue;
@@ -247,7 +251,7 @@ void apply_whiles(vector<con_token*>& tokens)
 }
 void apply_ifs(vector<con_token*>& tokens)
 {
-  for (int i = 0; i< tokens.size(); i++) {
+  for (size_t i = 0; i< tokens.size(); i++) {
     apply_ifs(tokens[i]->tokens);
     if (tokens[i]->tok_type != IF) {
       continue;
@@ -284,7 +288,7 @@ void apply_ifs(vector<con_token*>& tokens)
 void apply_functions(std::vector<con_token*>& tokens)
 {
   vector<con_token*>* subtokens = &tokens;
-  for (int i = 0; i < subtokens->size(); i++) {
+  for (size_t i = 0; i < subtokens->size(); i++) {
     if ((*subtokens)[i]->tok_type != FUNCTION) {
       continue;
     }
@@ -298,7 +302,7 @@ void apply_functions(std::vector<con_token*>& tokens)
     con_tag* functag = new con_tag;
     tag_tok->tok_tag = functag;
     functag->name = crntfunc->name;
-    for (int j = 0; j < crntfunc->arguments.size(); j++) {
+    for (size_t j = 0; j < crntfunc->arguments.size(); j++) {
       con_token* arg_tok = new con_token;
       arg_tok->tok_type = MACRO;
       con_macro* arg_macro = new con_macro;
@@ -319,18 +323,18 @@ void apply_functions(std::vector<con_token*>& tokens)
 }
 void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros)
 {
-  for (int i = 0; i < tokens.size(); i++) {
+  for (size_t i = 0; i < tokens.size(); i++) {
     if (tokens[i]->tok_type == MACRO) {
       // Filter spaces from macro and value pair
       con_macro* f_macro = new con_macro();
       f_macro->macro = "";
       f_macro->value = "";
-      for (int j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
+      for (size_t j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
         if (tokens[i]->tok_macro->macro[j] != ' ') {
           f_macro->macro += tokens[i]->tok_macro->macro[j];
         }
       }
-      for (int j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
+      for (size_t j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
         if (tokens[i]->tok_macro->value[j] != ' ')
           f_macro->value += tokens[i]->tok_macro->value[j];
       }
@@ -346,14 +350,14 @@ void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros)
 }
 void apply_funcalls(std::vector<con_token*>& tokens)
 {
-  for (int i = 0; i < tokens.size(); i++) {
+  for (size_t i = 0; i < tokens.size(); i++) {
     apply_funcalls(tokens[i]->tokens);
     if (tokens[i]->tok_type != FUNCALL) {
       continue;
     }
     vector<string>* args = &tokens[i]->tok_funcall->arguments;
     vector<con_token*> arg_tokens;
-    for (int j = 0; j < args->size(); j++) {
+    for (size_t j = 0; j < args->size(); j++) {
       con_token* arg_tok = new con_token();
       arg_tok->tok_type = CMD;
       con_cmd* arg_cmd = new con_cmd();
@@ -377,7 +381,7 @@ void apply_funcalls(std::vector<con_token*>& tokens)
 
 void linearize_tokens(vector<con_token*>& tokens)
 {
-  for (int i = 0; i < tokens.size(); i++) {
+  for (size_t i = 0; i < tokens.size(); i++) {
     if (tokens[i]->tok_type != IF && tokens[i]->tok_type != WHILE && tokens[i]->tok_type != FUNCTION) {
       continue;
     }
@@ -391,7 +395,7 @@ void linearize_tokens(vector<con_token*>& tokens)
 std::string tokens_to_nasm(std::vector<con_token*>& tokens)
 {
   string output = "";
-  for (int i = 0; i < tokens.size(); i++) {
+  for (size_t i = 0; i < tokens.size(); i++) {
     if (tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE
         || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO
         || tokens[i]->tok_type == FUNCALL) {

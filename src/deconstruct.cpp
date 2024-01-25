@@ -6,7 +6,7 @@ using namespace std;
 int get_line_indentation(string line)
 {
   int indentation = 0;
-  for (int i = 0; i < line.size(); i++) {
+  for (size_t i = 0; i < line.size(); i++) {
     if (line[i] == '\t') {
       indentation++;
       continue;
@@ -50,7 +50,7 @@ CON_COMPARISON str_to_comparison(string comp)
     return LE;
   if (comp == "ge")
     return GE;
-  //ERROR
+  return E; //ERROR but there is no error value in the enum
 }
 
 
@@ -76,7 +76,7 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
   // If token is while, if or function it is pushed to stack and becomes new parent.
   // if indentation goes up, new token is pushed to stack, when indentation goes down,
   // tops of stack are popped off by how much it decreased.
-  for (int i = 0; i < tokens.size(); i++) {
+  for (size_t i = 0; i < tokens.size(); i++) {
     if (parent_stack.top()->indentation - tokens[i]->indentation >= 0) {
       int indentation_diff = parent_stack.top()->indentation - tokens[i]->indentation+1;
       for (int j = 0; j < indentation_diff; j++) {
@@ -139,7 +139,7 @@ con_function* parse_function(string line)
   vector<string> line_split;
   boost::split(line_split, line, boost::is_any_of("():,"));
   tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
-  for (int i = 1; i < line_split.size()-2; i++) {
+  for (size_t i = 1; i < line_split.size()-2; i++) {
     if (line_split[i].empty()) {
       continue;
     }
@@ -173,7 +173,7 @@ con_funcall* parse_funcall(string line)
   vector<string> line_split;
   boost::split(line_split, line, boost::is_any_of("(),"));
   tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
-  for (int i = 1; i < line_split.size()-1; i++) {
+  for (size_t i = 1; i < line_split.size()-1; i++) {
     if (line_split[i].empty()) {
       continue;
     }
@@ -189,7 +189,7 @@ con_token* parse_line(string line)
   //remove multiple spaces from line
   string f_line = "";
   bool caught_space = false;
-  for (int i = 0; i < line.size(); i++) {
+  for (size_t i = 0; i < line.size(); i++) {
     if (line[i] == ' ') {
       if (!caught_space) {
         f_line += line[i];
@@ -237,7 +237,7 @@ vector<con_token*> parse_construct(string code)
   boost::to_lower(code);
   vector<con_token*> tokens;
   bool in_data = false;
-  for (int i = 0; i < code_split.size(); i++) {
+  for (size_t i = 0; i < code_split.size(); i++) {
     // Check if it contains any alphabet chars
     if (code_split[i].find_first_of("abcdefghijklmnopqrstuvwxyz!") == std::string::npos) {
       continue;
