@@ -5,6 +5,7 @@
 #include "construct_types.h"
 
 using namespace std;
+
 int if_amnt = 0;
 int while_amnt = 0;
 CON_BITWIDTH bitwidth = BIT64;
@@ -103,7 +104,6 @@ string reg_to_str(uint8_t call_num)
   }
   throw invalid_argument("Invalid bitwidth or call_num: bitwidth="+to_string(static_cast<int>(bitwidth))+" call_num="+to_string(static_cast<int>(call_num)));
 }
-
 string comparison_to_string(CON_COMPARISON condition)
 {
   switch (condition) {
@@ -122,7 +122,6 @@ string comparison_to_string(CON_COMPARISON condition)
   }
   throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
 }
-
 CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
 {
   switch (condition) {
@@ -142,7 +141,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
   throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
 }
 
-void apply_macro_to_token(con_token& token, vector<con_macro> macros)
+static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
 {
   if (token.tok_type != WHILE && token.tok_type != IF && token.tok_type != CMD) {
     return;
@@ -200,100 +199,7 @@ void apply_macro_to_token(con_token& token, vector<con_macro> macros)
     }
   }
 }
-void apply_funcalls(std::vector<con_token*>& tokens)
-{
-  for (size_t i = 0; i < tokens.size(); i++) {
-    apply_funcalls(tokens[i]->tokens);
-    if (tokens[i]->tok_type != FUNCALL) {
-      continue;
-    }
-    vector<string>* args = &tokens[i]->tok_funcall->arguments;
-    vector<con_token*> arg_tokens;
-    for (size_t j = 0; j < args->size(); j++) {
-      con_token* arg_tok = new con_token();
-      arg_tok->tok_type = CMD;
-      con_cmd* arg_cmd = new con_cmd();
-      arg_tok->tok_cmd = arg_cmd;
-      arg_cmd->command = "mov";
-      arg_cmd->arg1 = reg_to_str(j);
-      arg_cmd->arg2 = (*args)[j];
-      arg_tokens.push_back(arg_tok);
-    }
-    con_token* call_tok = new con_token();
-    call_tok->tok_type = CMD;
-    con_cmd* call_cmd = new con_cmd();
-    call_tok->tok_cmd = call_cmd;
-    call_cmd->command = "call";
-    call_cmd->arg1 = tokens[i]->tok_funcall->funcname;
-    arg_tokens.push_back(call_tok);
 
-    tokens.insert(tokens.begin()+i+1, arg_tokens.begin(), arg_tokens.end());
-  }
-}
-
-void apply_functions(std::vector<con_token*>& tokens)
-{
-  vector<con_token*>* subtokens = &tokens;
-  for (size_t i = 0; i < subtokens->size(); i++) {
-    if ((*subtokens)[i]->tok_type != FUNCTION) {
-      continue;
-    }
-    con_function* crntfunc = (*subtokens)[i]->tok_function;
-    if (crntfunc->name == "main") {
-      crntfunc->name = "_start";
-    }
-
-    con_token* tag_tok = new con_token;
-    tag_tok->tok_type = TAG;
-    con_tag* functag = new con_tag;
-    tag_tok->tok_tag = functag;
-    functag->name = crntfunc->name;
-    for (size_t j = 0; j < crntfunc->arguments.size(); j++) {
-      con_token* arg_tok = new con_token;
-      arg_tok->tok_type = MACRO;
-      con_macro* arg_macro = new con_macro;
-      arg_macro->value = reg_to_str(j);
-      arg_macro->macro = crntfunc->arguments[j];
-      arg_tok->tok_macro = arg_macro;
-
-      (*subtokens)[i]->tokens.insert((*subtokens)[i]->tokens.begin(), arg_tok);
-    }
-    (*subtokens)[i]->tokens.insert((*subtokens)[i]->tokens.begin(), tag_tok);
-    con_token* ret_tok = new con_token;
-    ret_tok->tok_type = CMD;
-    con_cmd* ret_cmd = new con_cmd;
-    ret_tok->tok_cmd = ret_cmd;
-    ret_cmd->command = "ret";
-    (*subtokens)[i]->tokens.push_back(ret_tok);
-  }
-}
-void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros)
-{
-  for (size_t i = 0; i < tokens.size(); i++) {
-    if (tokens[i]->tok_type == MACRO) {
-      // Filter spaces from macro and value pair
-      con_macro* f_macro = new con_macro();
-      f_macro->macro = "";
-      f_macro->value = "";
-      for (size_t j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
-        if (tokens[i]->tok_macro->macro[j] != ' ') {
-          f_macro->macro += tokens[i]->tok_macro->macro[j];
-        }
-      }
-      for (size_t j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
-        if (tokens[i]->tok_macro->value[j] != ' ')
-          f_macro->value += tokens[i]->tok_macro->value[j];
-      }
-      knownmacros.push_back(*f_macro);
-      delete f_macro;
-      continue;
-    }
-    apply_macro_to_token(*tokens[i], knownmacros);
-    if (tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION) {
-      apply_macros(tokens[i]->tokens, knownmacros);
-    }
-  }
-}
 void apply_whiles(vector<con_token*>& tokens)
 {
   for (size_t i = 0; i< tokens.size(); i++) {
@@ -383,6 +289,100 @@ void apply_ifs(vector<con_token*>& tokens)
     tokens[i]->tokens.push_back(endif_tok);
   }
 }
+void apply_functions(std::vector<con_token*>& tokens)
+{
+  vector<con_token*>* subtokens = &tokens;
+  for (size_t i = 0; i < subtokens->size(); i++) {
+    if ((*subtokens)[i]->tok_type != FUNCTION) {
+      continue;
+    }
+    con_function* crntfunc = (*subtokens)[i]->tok_function;
+    if (crntfunc->name == "main") {
+      crntfunc->name = "_start";
+    }
+
+    con_token* tag_tok = new con_token;
+    tag_tok->tok_type = TAG;
+    con_tag* functag = new con_tag;
+    tag_tok->tok_tag = functag;
+    functag->name = crntfunc->name;
+    for (size_t j = 0; j < crntfunc->arguments.size(); j++) {
+      con_token* arg_tok = new con_token;
+      arg_tok->tok_type = MACRO;
+      con_macro* arg_macro = new con_macro;
+      arg_macro->value = reg_to_str(j);
+      arg_macro->macro = crntfunc->arguments[j];
+      arg_tok->tok_macro = arg_macro;
+
+      (*subtokens)[i]->tokens.insert((*subtokens)[i]->tokens.begin(), arg_tok);
+    }
+    (*subtokens)[i]->tokens.insert((*subtokens)[i]->tokens.begin(), tag_tok);
+    con_token* ret_tok = new con_token;
+    ret_tok->tok_type = CMD;
+    con_cmd* ret_cmd = new con_cmd;
+    ret_tok->tok_cmd = ret_cmd;
+    ret_cmd->command = "ret";
+    (*subtokens)[i]->tokens.push_back(ret_tok);
+  }
+}
+void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros)
+{
+  for (size_t i = 0; i < tokens.size(); i++) {
+    if (tokens[i]->tok_type == MACRO) {
+      // Filter spaces from macro and value pair
+      con_macro* f_macro = new con_macro();
+      f_macro->macro = "";
+      f_macro->value = "";
+      for (size_t j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
+        if (tokens[i]->tok_macro->macro[j] != ' ') {
+          f_macro->macro += tokens[i]->tok_macro->macro[j];
+        }
+      }
+      for (size_t j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
+        if (tokens[i]->tok_macro->value[j] != ' ')
+          f_macro->value += tokens[i]->tok_macro->value[j];
+      }
+      knownmacros.push_back(*f_macro);
+      delete f_macro;
+      continue;
+    }
+    apply_macro_to_token(*tokens[i], knownmacros);
+    if (tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION) {
+      apply_macros(tokens[i]->tokens, knownmacros);
+    }
+  }
+}
+void apply_funcalls(std::vector<con_token*>& tokens)
+{
+  for (size_t i = 0; i < tokens.size(); i++) {
+    apply_funcalls(tokens[i]->tokens);
+    if (tokens[i]->tok_type != FUNCALL) {
+      continue;
+    }
+    vector<string>* args = &tokens[i]->tok_funcall->arguments;
+    vector<con_token*> arg_tokens;
+    for (size_t j = 0; j < args->size(); j++) {
+      con_token* arg_tok = new con_token();
+      arg_tok->tok_type = CMD;
+      con_cmd* arg_cmd = new con_cmd();
+      arg_tok->tok_cmd = arg_cmd;
+      arg_cmd->command = "mov";
+      arg_cmd->arg1 = reg_to_str(j);
+      arg_cmd->arg2 = (*args)[j];
+      arg_tokens.push_back(arg_tok);
+    }
+    con_token* call_tok = new con_token();
+    call_tok->tok_type = CMD;
+    con_cmd* call_cmd = new con_cmd();
+    call_tok->tok_cmd = call_cmd;
+    call_cmd->command = "call";
+    call_cmd->arg1 = tokens[i]->tok_funcall->funcname;
+    arg_tokens.push_back(call_tok);
+
+    tokens.insert(tokens.begin()+i+1, arg_tokens.begin(), arg_tokens.end());
+  }
+}
+
 void linearize_tokens(vector<con_token*>& tokens)
 {
   for (size_t i = 0; i < tokens.size(); i++) {

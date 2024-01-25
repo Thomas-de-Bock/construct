@@ -34,6 +34,7 @@ int main(int argc, char** argv)
   glob_cmd->command = "global _start";
   tokens.insert(tokens.begin(), glob_tok);
 
+  // Order dependant: some tokens are replaced with macros, so apply_macro() must be at the end.
   tokens = delinearize_tokens(tokens);
   apply_functions(tokens);
   apply_ifs(tokens);

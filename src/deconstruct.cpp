@@ -81,20 +81,20 @@ int get_line_indentation(string line)
 // Expects formatted line
 CON_TOKENTYPE get_token_type(string line)
 {
-  if (line[0] == '!')
-    return MACRO;
-  if (line.substr(0, 3) == "if ")
-    return IF;
-  if (line.substr(0, 6) == "while ")
-    return WHILE;
-  if (line.substr(0, 9) == "function ")
-    return FUNCTION;
   if (line.substr(0, 8) == "section ")
     return SECTION;
-  if (line.substr(0, 5) == "call " && line.find('(') != string::npos && line.find(')') != string::npos)
-    return FUNCALL;
   if (line.find(' ') == string::npos && line[line.size()-1] == ':')
     return TAG;
+  if (line.substr(0, 6) == "while ")
+    return WHILE;
+  if (line.substr(0, 3) == "if ")
+    return IF;
+  if (line.substr(0, 9) == "function ")
+    return FUNCTION;
+  if (line[0] == '!')
+    return MACRO;
+  if (line.substr(0, 5) == "call " && line.find('(') != string::npos && line.find(')') != string::npos)
+    return FUNCALL;
   return CMD;
 }
 
@@ -161,35 +161,6 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
   return delinearized_tokens;
 }
 
-con_macro* parse_macro(string line)
-{
-  con_macro* tok_macro = new con_macro();
-  int spacepos = line.find(' ');
-  tok_macro->macro = line.substr(1, spacepos-1);
-  tok_macro->value = line.substr(spacepos+1, line.size()-spacepos-1);
-  return tok_macro;
-}
-
-con_if* parse_if(string line)
-{
-  con_if* tok_if = new con_if();
-  vector<string> line_split;
-  split(line_split, line, IsAnyOf(" "));
-  tok_if->condition.arg1 = line_split[1];
-  tok_if->condition.op = str_to_comparison(line_split[2]);
-  tok_if->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1);
-  return tok_if;
-}
-con_while* parse_while(string line)
-{
-  con_while* tok_while = new con_while();
-  vector<string> line_split;
-  split(line_split, line, IsAnyOf(" "));
-  tok_while->condition.arg1 = line_split[1];
-  tok_while->condition.op = str_to_comparison(line_split[2]);
-  tok_while->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1); // to remove :
-  return tok_while;
-}
 con_section* parse_section(string line)
 {
   con_section* tok_section = new con_section();
@@ -204,17 +175,25 @@ con_tag* parse_tag(string line)
   tok_tag->name = line.substr(0, line.size()-1);
   return tok_tag;
 }
-con_cmd* parse_cmd(string line)
+con_while* parse_while(string line)
 {
-  con_cmd* tok_cmd = new con_cmd();
+  con_while* tok_while = new con_while();
   vector<string> line_split;
-  split(line_split, line, IsAnyOf(" ,"));
-  tok_cmd->command = line_split[0];
-  if (line_split.size() > 1)
-    tok_cmd->arg1 = line_split[1];
-  if (line_split.size() > 3)
-    tok_cmd->arg2 = line_split[3];
-  return tok_cmd;
+  split(line_split, line, IsAnyOf(" "));
+  tok_while->condition.arg1 = line_split[1];
+  tok_while->condition.op = str_to_comparison(line_split[2]);
+  tok_while->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1); // to remove :
+  return tok_while;
+}
+con_if* parse_if(string line)
+{
+  con_if* tok_if = new con_if();
+  vector<string> line_split;
+  split(line_split, line, IsAnyOf(" "));
+  tok_if->condition.arg1 = line_split[1];
+  tok_if->condition.op = str_to_comparison(line_split[2]);
+  tok_if->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1);
+  return tok_if;
 }
 con_function* parse_function(string line)
 {
@@ -229,6 +208,26 @@ con_function* parse_function(string line)
     tok_function->arguments.push_back(line_split[i]); // macros filter out spaces anyway when applied
   }
   return tok_function;
+}
+con_cmd* parse_cmd(string line)
+{
+  con_cmd* tok_cmd = new con_cmd();
+  vector<string> line_split;
+  split(line_split, line, IsAnyOf(" ,"));
+  tok_cmd->command = line_split[0];
+  if (line_split.size() > 1)
+    tok_cmd->arg1 = line_split[1];
+  if (line_split.size() > 3)
+    tok_cmd->arg2 = line_split[3];
+  return tok_cmd;
+}
+con_macro* parse_macro(string line)
+{
+  con_macro* tok_macro = new con_macro();
+  int spacepos = line.find(' ');
+  tok_macro->macro = line.substr(1, spacepos-1);
+  tok_macro->value = line.substr(spacepos+1, line.size()-spacepos-1);
+  return tok_macro;
 }
 con_funcall* parse_funcall(string line)
 {
@@ -267,29 +266,29 @@ con_token* parse_line(string line)
   }
   token->tok_type = get_token_type(f_line);
   switch (token->tok_type) {
-    case MACRO:
-      token->tok_macro = parse_macro(f_line);
-      break;
-    case IF:
-      token->tok_if = parse_if(f_line);
-      break;
-    case WHILE:
-      token->tok_while = parse_while(f_line);
-      break;
-    case FUNCTION:
-      token->tok_function = parse_function(f_line);
-      break;
-    case FUNCALL:
-      token->tok_funcall = parse_funcall(f_line);
     case SECTION:
       token->tok_section = parse_section(f_line);
       break;
     case TAG:
       token->tok_tag = parse_tag(f_line);
       break;
+    case WHILE:
+      token->tok_while = parse_while(f_line);
+      break;
+    case IF:
+      token->tok_if = parse_if(f_line);
+      break;
+    case FUNCTION:
+      token->tok_function = parse_function(f_line);
+      break;
     case CMD:
       token->tok_cmd = parse_cmd(f_line);
       break;
+    case MACRO:
+      token->tok_macro = parse_macro(f_line);
+      break;
+    case FUNCALL:
+      token->tok_funcall = parse_funcall(f_line);
   }
   return token;
 }

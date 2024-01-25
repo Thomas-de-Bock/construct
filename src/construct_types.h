@@ -40,15 +40,16 @@ struct con_token {
   struct con_while* tok_while;
   struct con_if* tok_if;
   struct con_function* tok_function;
-  struct con_funcall* tok_funcall;
   struct con_cmd* tok_cmd;
   struct con_macro* tok_macro;
+  struct con_funcall* tok_funcall;
   std::vector<con_token*> tokens; // Only non-empty for if, while and function tokens
 };
 
-struct con_macro {
-  std::string value;
-  std::string macro;
+struct _con_condition {
+  CON_COMPARISON op;
+  std::string arg1;
+  std::string arg2;
 };
 
 struct con_section {
@@ -59,18 +60,12 @@ struct con_tag {
   std::string name;
 };
 
-struct con_condition {
-  CON_COMPARISON op;
-  std::string arg1;
-  std::string arg2;
-};
-
 struct con_while {
-  con_condition condition;
+  _con_condition condition;
 };
 
 struct con_if {
-  con_condition condition;
+  _con_condition condition;
 };
 
 struct con_function {
@@ -82,6 +77,11 @@ struct con_cmd {
   std::string command;
   std::string arg1;
   std::string arg2;
+};
+
+struct con_macro {
+  std::string value;
+  std::string macro;
 };
 
 struct con_funcall {
