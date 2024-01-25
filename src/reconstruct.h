@@ -1,3 +1,6 @@
+#ifndef RECONSTRUCT_H_
+#define RECONSTRUCT_H_
+
 #include <string>
 #include <iostream>
 #include <stdint.h>
@@ -26,3 +29,5 @@ void apply_funcalls(std::vector<con_token*>& tokens);
 void linearize_tokens(std::vector<con_token*>& tokens);
 
 std::string tokens_to_nasm(std::vector<con_token*>& tokens);
+
+#endif // RECONSTRUCT_H_

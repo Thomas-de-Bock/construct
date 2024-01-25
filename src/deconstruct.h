@@ -1,3 +1,6 @@
+#ifndef DECONSTRUCT_H_
+#define DECONSTRUCT_H_
+
 #include "construct_debug.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -24,3 +27,5 @@ con_funcall* parse_funcall(std::string line);
 
 con_token* parse_line(std::string line);
 std::vector<con_token*> parse_construct(std::string code);
+
+#endif // DECONSTRUCT_H_

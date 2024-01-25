@@ -1,5 +1,5 @@
-#ifndef CON_TYPES_H
-#define CON_TYPES_H
+#ifndef CONSTRUCT_TYPES_H_
+#define CONSTRUCT_TYPES_H_
 
 #include <string>
 #include <vector>
@@ -89,4 +89,4 @@ struct con_funcall {
   std::vector<std::string> arguments;
 };
 
-#endif
+#endif // CONSTRUCT_TYPES_H_
