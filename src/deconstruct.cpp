@@ -1,5 +1,8 @@
-#include "construct_types.h"
+#include <string>
+#include <vector>
+#include <stack>
 #include "deconstruct.h"
+#include "construct_types.h"
 
 using namespace std;
 

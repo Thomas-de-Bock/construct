@@ -1,3 +1,5 @@
+#include <string>
+#include <vector>
 #include "reconstruct.h"
 #include "construct_types.h"
 

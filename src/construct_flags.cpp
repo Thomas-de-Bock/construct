@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include "construct_flags.h"
 #include "construct_types.h"
 

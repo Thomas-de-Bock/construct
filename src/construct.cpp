@@ -1,8 +1,12 @@
-#include "deconstruct.h"
-#include "reconstruct.h"
-#include "construct_flags.h"
+#include <string>
+#include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include "construct_types.h"
+#include "deconstruct.h"     // parse_construct()
+#include "reconstruct.h"     // linearize_tokens()
+#include "construct_flags.h" // handle_flags()
 
 int main(int argc, char** argv)
 {

@@ -1,4 +1,8 @@
+#include <string>
+#include <vector>
 #include "construct_debug.h"
+#include "construct_types.h"
+#include "reconstruct.h"     // comparison_to_string()
 
 std::string tokentype_to_string(CON_TOKENTYPE type)
 {

@@ -1,11 +1,9 @@
 #ifndef DECONSTRUCT_H_
 #define DECONSTRUCT_H_
 
-#include "construct_debug.h"
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <stack>
+#include <string>
+#include <vector>
+#include "construct_types.h"
 
 int get_line_indentation(std::string line);
 CON_TOKENTYPE get_token_type(std::string line);

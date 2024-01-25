@@ -2,8 +2,7 @@
 #define RECONSTRUCT_H_
 
 #include <string>
-#include <iostream>
-#include <stdint.h>
+#include <vector>
 #include "construct_types.h"
 
 // Used for naming tags
