@@ -47,7 +47,7 @@ public:
 };
 
 template <typename Predicate>
-static void split(vector<string>& result, const string& input, const Predicate& pred, const bool& compress_adj_delims = false)
+static void split(vector<string>& result, const string& input, const Predicate& pred, const bool& compress_adj_delims=true, const bool& strip=true)
 {
   string tmp;
   bool prev_is_delim = false;
@@ -63,6 +63,12 @@ static void split(vector<string>& result, const string& input, const Predicate& 
     }
   }
   result.push_back(tmp);
+  if (strip) {
+    if (tmp.empty())
+      result.pop_back();
+    if (!result.empty() && result[0].empty())
+      result.erase(result.begin());
+  }
 }
 
 int get_line_indentation(string line)
@@ -161,7 +167,7 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
   return delinearized_tokens;
 }
 
-con_section* parse_section(string line)
+con_section* parse_section(string line) // section name // section . name ??
 {
   con_section* tok_section = new con_section();
   vector<string> line_split;
@@ -169,39 +175,39 @@ con_section* parse_section(string line)
   tok_section->name = line_split[1];
   return tok_section;
 }
-con_tag* parse_tag(string line)
+con_tag* parse_tag(string line) // name: // name : ??
 {
   con_tag* tok_tag = new con_tag();
   tok_tag->name = line.substr(0, line.size()-1);
   return tok_tag;
 }
-con_while* parse_while(string line)
+con_while* parse_while(string line) // while val1 comp val2:
 {
   con_while* tok_while = new con_while();
   vector<string> line_split;
-  split(line_split, line, IsAnyOf(" "));
+  split(line_split, line, IsAnyOf(" :"));
   tok_while->condition.arg1 = line_split[1];
   tok_while->condition.op = str_to_comparison(line_split[2]);
-  tok_while->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1); // to remove :
+  tok_while->condition.arg2 = line_split[3];
   return tok_while;
 }
-con_if* parse_if(string line)
+con_if* parse_if(string line) // if val1 comp val2:
 {
   con_if* tok_if = new con_if();
   vector<string> line_split;
-  split(line_split, line, IsAnyOf(" "));
+  split(line_split, line, IsAnyOf(" :"));
   tok_if->condition.arg1 = line_split[1];
   tok_if->condition.op = str_to_comparison(line_split[2]);
-  tok_if->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1);
+  tok_if->condition.arg2 = line_split[3];
   return tok_if;
 }
-con_function* parse_function(string line)
+con_function* parse_function(string line) // function func(arg1, arg2, ...):
 {
   con_function* tok_function = new con_function();
   vector<string> line_split;
-  split(line_split, line, IsAnyOf("():,"));
-  tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
-  for (size_t i = 1; i < line_split.size()-2; i++) {
+  split(line_split, line, IsAnyOf(" ():,"));
+  tok_function->name = line_split[1];
+  for (size_t i = 2; i < line_split.size(); i++) {
     if (line_split[i].empty()) {
       continue;
     }
@@ -209,7 +215,7 @@ con_function* parse_function(string line)
   }
   return tok_function;
 }
-con_cmd* parse_cmd(string line)
+con_cmd* parse_cmd(string line) // op // op arg1 // op arg1, arg2
 {
   con_cmd* tok_cmd = new con_cmd();
   vector<string> line_split;
@@ -217,25 +223,26 @@ con_cmd* parse_cmd(string line)
   tok_cmd->command = line_split[0];
   if (line_split.size() > 1)
     tok_cmd->arg1 = line_split[1];
-  if (line_split.size() > 3)
-    tok_cmd->arg2 = line_split[3];
+  if (line_split.size() > 2)
+    tok_cmd->arg2 = line_split[2];
   return tok_cmd;
 }
-con_macro* parse_macro(string line)
+con_macro* parse_macro(string line) // !name reg
 {
   con_macro* tok_macro = new con_macro();
-  int spacepos = line.find(' ');
-  tok_macro->macro = line.substr(1, spacepos-1);
-  tok_macro->value = line.substr(spacepos+1, line.size()-spacepos-1);
+  vector<string> line_split;
+  split(line_split, line, IsAnyOf(" !"));
+  tok_macro->macro = line_split[0];
+  tok_macro->value = line_split[1];
   return tok_macro;
 }
-con_funcall* parse_funcall(string line)
+con_funcall* parse_funcall(string line) // call func(arg1, arg2, ...)
 {
   con_funcall* tok_funcall = new con_funcall();
   vector<string> line_split;
-  split(line_split, line, IsAnyOf("(),"));
-  tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
-  for (size_t i = 1; i < line_split.size()-1; i++) {
+  split(line_split, line, IsAnyOf(" (),"));
+  tok_funcall->funcname = line_split[1];
+  for (size_t i = 2; i < line_split.size(); i++) {
     if (line_split[i].empty()) {
       continue;
     }
@@ -295,7 +302,7 @@ con_token* parse_line(string line)
 vector<con_token*> parse_construct(string code)
 {
   vector<string> code_split;
-  split(code_split, code, IsAnyOf("\n"), true);
+  split(code_split, code, IsAnyOf("\n"));
   to_lower(code);
   vector<con_token*> tokens;
   bool in_data = false;

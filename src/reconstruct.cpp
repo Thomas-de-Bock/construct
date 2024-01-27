@@ -358,16 +358,16 @@ void apply_funcalls(std::vector<con_token*>& tokens)
     if (tokens[i]->tok_type != FUNCALL) {
       continue;
     }
-    vector<string>* args = &tokens[i]->tok_funcall->arguments;
+    vector<string>& args = tokens[i]->tok_funcall->arguments;
     vector<con_token*> arg_tokens;
-    for (size_t j = 0; j < args->size(); j++) {
+    for (size_t j = 0; j < args.size(); j++) {
       con_token* arg_tok = new con_token();
       arg_tok->tok_type = CMD;
       con_cmd* arg_cmd = new con_cmd();
       arg_tok->tok_cmd = arg_cmd;
       arg_cmd->command = "mov";
       arg_cmd->arg1 = reg_to_str(j);
-      arg_cmd->arg2 = (*args)[j];
+      arg_cmd->arg2 = args[j];
       arg_tokens.push_back(arg_tok);
     }
     con_token* call_tok = new con_token();
