@@ -4,7 +4,7 @@ SDIR = src
 BDIR = bin
 _OBJS = construct_debug.o construct_flags.o deconstruct.o reconstruct.o construct.o
 OBJS =  $(patsubst %,$(BDIR)/%,$(_OBJS))
-PROG = construct
+PROG = construct.exe
 
 .PHONY: all clean
 
@@ -12,7 +12,7 @@ all: $(OBJS) $(BDIR)/$(PROG)
 
 $(BDIR)/$(PROG): $(OBJS)
 	mkdir -p $(BDIR)
-	$(CC) $(OBJS) -o $(BDIR)/$(PROG)
+	$(CC) $(OBJS) -o $(BDIR)/$(PROG) $(CFLAGS)
 
 $(BDIR)/construct.o: $(SDIR)/construct.cpp $(SDIR)/deconstruct.h $(SDIR)/reconstruct.h $(SDIR)/construct_flags.h $(SDIR)/construct_types.h
 	mkdir -p $(BDIR)
