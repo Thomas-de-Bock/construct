@@ -404,8 +404,11 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens)
         || tokens[i]->tok_type == FUNCALL) {
       continue;
     }
-    output += "\n";
-    if (tokens[i]->tok_type == CMD) {
+    if (tokens[i]->tok_type == SECTION) {
+      output += "section " + tokens[i]->tok_section->name + "\n";
+    } else if (tokens[i]->tok_type == TAG) {
+      output += tokens[i]->tok_tag->name + ":" + "\n";
+    } else if (tokens[i]->tok_type == CMD) {
       output += tokens[i]->tok_cmd->command;
       if (!tokens[i]->tok_cmd->arg1.empty()) {
         output += " " + tokens[i]->tok_cmd->arg1;
@@ -413,16 +416,8 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens)
       if (!tokens[i]->tok_cmd->arg2.empty()) {
         output += ", " + tokens[i]->tok_cmd->arg2;
       }
-      continue;
     }
-    if (tokens[i]->tok_type == TAG) {
-      output += tokens[i]->tok_tag->name + ":";
-      continue;
-    }
-    if (tokens[i]->tok_type == SECTION) {
-      output += "section " + tokens[i]->tok_section->name;
-      continue;
-    }
+    output += "\n";
   }
   return output;
 }
