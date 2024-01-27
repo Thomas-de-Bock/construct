@@ -405,9 +405,9 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens)
       continue;
     }
     if (tokens[i]->tok_type == SECTION) {
-      output += "section " + tokens[i]->tok_section->name + "\n";
+      output += "section " + tokens[i]->tok_section->name;
     } else if (tokens[i]->tok_type == TAG) {
-      output += tokens[i]->tok_tag->name + ":" + "\n";
+      output += tokens[i]->tok_tag->name + ":";
     } else if (tokens[i]->tok_type == CMD) {
       output += tokens[i]->tok_cmd->command;
       if (!tokens[i]->tok_cmd->arg1.empty()) {
