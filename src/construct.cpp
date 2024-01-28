@@ -1,8 +1,8 @@
 #include "deconstruct.h"
 #include "reconstruct.h"
 #include "construct_flags.h"
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char** argv) {
   std::string path;
@@ -37,6 +37,7 @@ int main(int argc, char** argv) {
   std::vector<con_macro> empty_macros;
   apply_macros(tokens, empty_macros);
   linearize_tokens(tokens);
+  merge_labels(tokens);
 
   std::ofstream outfile;
   outfile.open(outpath);

@@ -1,5 +1,5 @@
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include "construct_types.h"
 #include "reconstruct.h"
 

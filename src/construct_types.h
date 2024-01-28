@@ -1,8 +1,8 @@
 #ifndef CON_TYPES_H
 #define CON_TYPES_H
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 enum CON_BITWIDTH {
   BIT8,
