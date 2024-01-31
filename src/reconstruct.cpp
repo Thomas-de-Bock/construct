@@ -10,7 +10,44 @@ int if_amnt = 0;
 int while_amnt = 0;
 CON_BITWIDTH bitwidth = BIT64;
 
-string reg_to_str(uint8_t call_num)
+string comparison_to_string(CON_COMPARISON condition)
+{
+  switch (condition) {
+    case E:
+      return "e";
+    case NE:
+      return "ne";
+    case L:
+      return "l";
+    case G:
+      return "g";
+    case LE:
+      return "le";
+    case GE:
+      return "ge";
+  }
+  throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
+}
+CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
+{
+  switch (condition) {
+    case E:
+      return NE;
+    case NE:
+      return E;
+    case L:
+      return GE;
+    case G:
+      return LE;
+    case LE:
+      return G;
+    case GE:
+      return L;
+  }
+  throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
+}
+
+static string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth)
 {
   switch (bitwidth) {
     case BIT8:
@@ -102,45 +139,9 @@ string reg_to_str(uint8_t call_num)
       }
     break;
   }
-  throw invalid_argument("Invalid bitwidth or call_num: bitwidth="+to_string(static_cast<int>(bitwidth))+" call_num="+to_string(static_cast<int>(call_num)));
+  throw invalid_argument("Invalid bitwidth or call_num: bitwidth="+to_string(static_cast<int>(bitwidth))
+                         +" call_num="+to_string(static_cast<int>(call_num)));
 }
-string comparison_to_string(CON_COMPARISON condition)
-{
-  switch (condition) {
-    case E:
-      return "e";
-    case NE:
-      return "ne";
-    case L:
-      return "l";
-    case G:
-      return "g";
-    case LE:
-      return "le";
-    case GE:
-      return "ge";
-  }
-  throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
-}
-CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition)
-{
-  switch (condition) {
-    case E:
-      return NE;
-    case NE:
-      return E;
-    case L:
-      return GE;
-    case G:
-      return LE;
-    case LE:
-      return G;
-    case GE:
-      return L;
-  }
-  throw invalid_argument("Invalid comparison value: "+to_string(static_cast<int>(condition)));
-}
-
 static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
 {
   if (token.tok_type != WHILE && token.tok_type != IF && token.tok_type != CMD) {
@@ -155,13 +156,15 @@ static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
         if (!token.tok_while->condition.arg1.empty() &&
             (pos = token.tok_while->condition.arg1.find(crntmacro->macro)) != string::npos &&
             (pos == 0 || !isalpha(token.tok_while->condition.arg1[pos-1])) &&
-            (pos == token.tok_while->condition.arg1.size()-1 || !isalpha(token.tok_while->condition.arg1[pos+crntmacro->macro.size()]))) {
+            (pos == token.tok_while->condition.arg1.size()-1
+             || !isalpha(token.tok_while->condition.arg1[pos+crntmacro->macro.size()]))) {
           token.tok_while->condition.arg1.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
         if (!token.tok_while->condition.arg2.empty() &&
             (pos = token.tok_while->condition.arg2.find(crntmacro->macro)) != string::npos &&
             (pos == 0 || !isalpha(token.tok_while->condition.arg2[pos-1])) &&
-            (pos == token.tok_while->condition.arg2.size()-1 || !isalpha(token.tok_while->condition.arg2[pos+crntmacro->macro.size()]))) {
+            (pos == token.tok_while->condition.arg2.size()-1
+             || !isalpha(token.tok_while->condition.arg2[pos+crntmacro->macro.size()]))) {
           token.tok_while->condition.arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
       break;
@@ -169,13 +172,15 @@ static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
         if (!token.tok_if->condition.arg1.empty() &&
             (pos = token.tok_if->condition.arg1.find(crntmacro->macro)) != string::npos &&
             (pos == 0 || !isalpha(token.tok_if->condition.arg1[pos-1])) &&
-            (pos == token.tok_if->condition.arg1.size()-1 || !isalpha(token.tok_if->condition.arg1[pos+crntmacro->macro.size()]))) {
+            (pos == token.tok_if->condition.arg1.size()-1
+             || !isalpha(token.tok_if->condition.arg1[pos+crntmacro->macro.size()]))) {
           token.tok_if->condition.arg1.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
         if (!token.tok_if->condition.arg2.empty() &&
             (pos = token.tok_if->condition.arg2.find(crntmacro->macro)) != string::npos &&
             (pos == 0 || !isalpha(token.tok_if->condition.arg2[pos-1])) &&
-            (pos == token.tok_if->condition.arg2.size()-1 || !isalpha(token.tok_if->condition.arg2[pos+crntmacro->macro.size()]))) {
+            (pos == token.tok_if->condition.arg2.size()-1
+             || !isalpha(token.tok_if->condition.arg2[pos+crntmacro->macro.size()]))) {
           token.tok_if->condition.arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
       break;
@@ -290,12 +295,11 @@ void apply_ifs(vector<con_token*>& tokens)
 }
 void apply_functions(std::vector<con_token*>& tokens)
 {
-  vector<con_token*>* subtokens = &tokens;
-  for (size_t i = 0; i < subtokens->size(); i++) {
-    if ((*subtokens)[i]->tok_type != FUNCTION) {
+  for (size_t i = 0; i < tokens.size(); i++) {
+    if (tokens[i]->tok_type != FUNCTION) {
       continue;
     }
-    con_function* crntfunc = (*subtokens)[i]->tok_function;
+    con_function* crntfunc = tokens[i]->tok_function;
     if (crntfunc->name == "main") {
       crntfunc->name = "_start";
     }
@@ -309,19 +313,19 @@ void apply_functions(std::vector<con_token*>& tokens)
       con_token* arg_tok = new con_token;
       arg_tok->tok_type = MACRO;
       con_macro* arg_macro = new con_macro;
-      arg_macro->value = reg_to_str(j);
+      arg_macro->value = reg_to_str(j, bitwidth);
       arg_macro->macro = crntfunc->arguments[j];
       arg_tok->tok_macro = arg_macro;
 
-      (*subtokens)[i]->tokens.insert((*subtokens)[i]->tokens.begin(), arg_tok);
+      tokens[i]->tokens.insert(tokens[i]->tokens.begin(), arg_tok);
     }
-    (*subtokens)[i]->tokens.insert((*subtokens)[i]->tokens.begin(), tag_tok);
+    tokens[i]->tokens.insert(tokens[i]->tokens.begin(), tag_tok);
     con_token* ret_tok = new con_token;
     ret_tok->tok_type = CMD;
     con_cmd* ret_cmd = new con_cmd;
     ret_tok->tok_cmd = ret_cmd;
     ret_cmd->command = "ret";
-    (*subtokens)[i]->tokens.push_back(ret_tok);
+    tokens[i]->tokens.push_back(ret_tok);
   }
 }
 void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros)
@@ -366,7 +370,7 @@ void apply_funcalls(std::vector<con_token*>& tokens)
       con_cmd* arg_cmd = new con_cmd();
       arg_tok->tok_cmd = arg_cmd;
       arg_cmd->command = "mov";
-      arg_cmd->arg1 = reg_to_str(j);
+      arg_cmd->arg1 = reg_to_str(j, bitwidth);
       arg_cmd->arg2 = args[j];
       arg_tokens.push_back(arg_tok);
     }
@@ -377,6 +381,43 @@ void apply_funcalls(std::vector<con_token*>& tokens)
     call_cmd->command = "call";
     call_cmd->arg1 = tokens[i]->tok_funcall->funcname;
     arg_tokens.push_back(call_tok);
+
+    tokens.insert(tokens.begin()+i+1, arg_tokens.begin(), arg_tokens.end());
+  }
+}
+void apply_syscalls(std::vector<con_token*>& tokens)
+{
+  for (size_t i = 0; i < tokens.size(); i++) {
+    apply_syscalls(tokens[i]->tokens);
+    if (tokens[i]->tok_type != SYSCALL) {
+      continue;
+    }
+    vector<string>& args = tokens[i]->tok_syscall->arguments;
+    vector<con_token*> arg_tokens;
+    for (size_t j = 0; j < args.size(); j++) {
+      con_token* arg_tok = new con_token();
+      arg_tok->tok_type = CMD;
+      con_cmd* arg_cmd = new con_cmd();
+      arg_tok->tok_cmd = arg_cmd;
+      arg_cmd->command = "mov";
+      arg_cmd->arg1 = reg_to_str(j, bitwidth);
+      arg_cmd->arg2 = args[j];
+      arg_tokens.push_back(arg_tok);
+    }
+    con_token* call_tok1 = new con_token();
+    call_tok1->tok_type = CMD;
+    con_cmd* call_cmd = new con_cmd();
+    call_tok1->tok_cmd = call_cmd;
+    call_cmd->command = "mov";
+    call_cmd->arg1 = "rax";
+    call_cmd->arg2 = to_string(tokens[i]->tok_syscall->number);
+    arg_tokens.push_back(call_tok1);
+    con_token* call_tok2 = new con_token();
+    call_tok2->tok_type = CMD;
+    con_cmd* call_sys = new con_cmd();
+    call_tok2->tok_cmd = call_sys;
+    call_sys->command = "syscall";
+    arg_tokens.push_back(call_tok2);
 
     tokens.insert(tokens.begin()+i+1, arg_tokens.begin(), arg_tokens.end());
   }
@@ -399,9 +440,9 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens)
 {
   string output = "";
   for (size_t i = 0; i < tokens.size(); i++) {
-    if (tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE
+    if (tokens[i]->tok_type == WHILE || tokens[i]->tok_type == IF
         || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO
-        || tokens[i]->tok_type == FUNCALL) {
+        || tokens[i]->tok_type == FUNCALL || tokens[i]->tok_type == SYSCALL) {
       continue;
     }
     if (tokens[i]->tok_type == SECTION) {
