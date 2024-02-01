@@ -4,9 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include "construct_types.h"
-#include "deconstruct.h"     // parse_construct()
-#include "reconstruct.h"     // linearize_tokens()
-#include "construct_flags.h" // handle_flags()
+#include "deconstruct.h"
+#include "reconstruct.h"
+#include "construct_flags.h"
 
 int main(int argc, char** argv)
 {
@@ -40,6 +40,7 @@ int main(int argc, char** argv)
   apply_ifs(tokens);
   apply_whiles(tokens);
   apply_funcalls(tokens);
+  apply_syscalls(tokens);
   std::vector<con_macro> empty_macros;
   apply_macros(tokens, empty_macros);
   linearize_tokens(tokens);
