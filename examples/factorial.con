@@ -16,8 +16,7 @@ function main():
 	!result rax
 	call printf(fmt, result)
 
-	mov rax, 60
-	syscall
+	syscall exit()
 
 section .data
 fmt: db "%d", 10, 0
