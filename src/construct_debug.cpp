@@ -5,8 +5,7 @@
 #include "construct_types.h"
 #include "reconstruct.h"     // comparison_to_string()
 
-std::string tokentype_to_string(CON_TOKENTYPE type)
-{
+std::string tokentype_to_string(CON_TOKENTYPE type) {
   switch (type) {
     case SECTION:
       return "section";
@@ -28,8 +27,7 @@ std::string tokentype_to_string(CON_TOKENTYPE type)
   throw std::invalid_argument("Invalid token type: "+std::to_string(static_cast<int>(type)));
 }
 
-std::string token_to_string(con_token token)
-{
+std::string token_to_string(con_token token) {
   std::string tokstring = "type: " + tokentype_to_string(token.tok_type);
   switch (token.tok_type) {
     case SECTION:

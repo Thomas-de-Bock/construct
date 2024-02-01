@@ -12,8 +12,7 @@ static void to_lower(string& str);
 static vector<string> split(const string& input, const string& chars);
 
 
-int get_line_indentation(string line)
-{
+int get_line_indentation(string line) {
   int indentation = 0;
   for (size_t i = 0; i < line.size(); i++) {
     if (line[i] == '\t') {
@@ -26,8 +25,7 @@ int get_line_indentation(string line)
 }
 
 // Expects formatted line
-CON_TOKENTYPE get_token_type(string line)
-{
+CON_TOKENTYPE get_token_type(string line) {
   if (line.substr(0, 8) == "section ")
     return SECTION;
   if (line.find(' ') == string::npos && line[line.size()-1] == ':')
@@ -45,8 +43,7 @@ CON_TOKENTYPE get_token_type(string line)
   return CMD;
 }
 
-CON_COMPARISON str_to_comparison(string comp)
-{
+CON_COMPARISON str_to_comparison(string comp) {
   if (comp == "e")
     return E;
   if (comp == "ne")
@@ -63,8 +60,7 @@ CON_COMPARISON str_to_comparison(string comp)
 }
 
 
-vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
-{
+vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens) {
   vector<con_token*> dl_tokens;
 
   // Serves as parent "section" where all tokens belong to, convenient for algo
@@ -108,21 +104,18 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
   return delinearized_tokens;
 }
 
-con_section* parse_section(string line)
-{
+con_section* parse_section(string line) {
   con_section* tok_section = new con_section();
   vector<string> line_split = split(line, " ");
   tok_section->name = line_split[1];
   return tok_section;
 }
-con_tag* parse_tag(string line)
-{
+con_tag* parse_tag(string line) {
   con_tag* tok_tag = new con_tag();
   tok_tag->name = line.substr(0, line.size()-1);
   return tok_tag;
 }
-con_while* parse_while(string line)
-{
+con_while* parse_while(string line) {
   con_while* tok_while = new con_while();
   vector<string> line_split = split(line, " ");
   tok_while->condition.arg1 = line_split[1];
@@ -130,8 +123,7 @@ con_while* parse_while(string line)
   tok_while->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1); // to remove :
   return tok_while;
 }
-con_if* parse_if(string line)
-{
+con_if* parse_if(string line) {
   con_if* tok_if = new con_if();
   vector<string> line_split = split(line, " ");
   tok_if->condition.arg1 = line_split[1];
@@ -139,8 +131,7 @@ con_if* parse_if(string line)
   tok_if->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1);
   return tok_if;
 }
-con_function* parse_function(string line)
-{
+con_function* parse_function(string line) {
   con_function* tok_function = new con_function();
   vector<string> line_split = split(line, "():,");
   tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
@@ -152,8 +143,7 @@ con_function* parse_function(string line)
   }
   return tok_function;
 }
-con_cmd* parse_cmd(string line)
-{
+con_cmd* parse_cmd(string line) {
   con_cmd* tok_cmd = new con_cmd();
   vector<string> line_split = split(line, " ,");
   tok_cmd->command = line_split[0];
@@ -163,16 +153,14 @@ con_cmd* parse_cmd(string line)
     tok_cmd->arg2 = line_split[3];
   return tok_cmd;
 }
-con_macro* parse_macro(string line)
-{
+con_macro* parse_macro(string line) {
   con_macro* tok_macro = new con_macro();
   int spacepos = line.find(' ');
   tok_macro->macro = line.substr(1, spacepos-1);
   tok_macro->value = line.substr(spacepos+1, line.size()-spacepos-1);
   return tok_macro;
 }
-con_funcall* parse_funcall(string line)
-{
+con_funcall* parse_funcall(string line) {
   con_funcall* tok_funcall = new con_funcall();
   vector<string> line_split = split(line, "(),");
   tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
@@ -186,8 +174,7 @@ con_funcall* parse_funcall(string line)
 }
 
 // Does not expect formatted line, only lowercase
-con_token* parse_line(string line)
-{
+con_token* parse_line(string line) {
   con_token* token = new con_token;
   //remove multiple spaces from line
   string f_line = "";
@@ -233,8 +220,7 @@ con_token* parse_line(string line)
   }
   return token;
 }
-vector<con_token*> parse_construct(string code)
-{
+vector<con_token*> parse_construct(string code) {
   vector<string> code_split = split(code, "\n");
   to_lower(code);
   vector<con_token*> tokens;
@@ -264,8 +250,7 @@ vector<con_token*> parse_construct(string code)
 
 // ----- ----- ----- ----- ----- ----- helper functions impl ----- ----- ----- ----- -----
 
-void to_lower(string& str)
-{
+void to_lower(string& str) {
   for (string::iterator it = str.begin(); it != str.end(); ++it) {
     if (*it >= 'A' && *it <= 'Z') {
         *it -= 'A';
@@ -274,8 +259,7 @@ void to_lower(string& str)
   }
 }
 
-vector<string> split(const string& input, const string& chars)
-{
+vector<string> split(const string& input, const string& chars) {
   vector<string> result;
   string tmp;
   bool prev_is_delim = false;
