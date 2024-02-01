@@ -203,6 +203,21 @@ static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
     }
   }
 }
+static vector<con_token*> push_args(vector<string>& args)
+{
+  vector<con_token*> arg_tokens;
+  for (size_t j = 0; j < args.size(); j++) {
+    con_token* arg_tok = new con_token();
+    arg_tok->tok_type = CMD;
+    con_cmd* arg_cmd = new con_cmd();
+    arg_tok->tok_cmd = arg_cmd;
+    arg_cmd->command = "mov";
+    arg_cmd->arg1 = reg_to_str(j, bitwidth);
+    arg_cmd->arg2 = args[j];
+    arg_tokens.push_back(arg_tok);
+  }
+  return arg_tokens;
+}
 
 void apply_whiles(vector<con_token*>& tokens)
 {
@@ -362,18 +377,7 @@ void apply_funcalls(std::vector<con_token*>& tokens)
     if (tokens[i]->tok_type != FUNCALL) {
       continue;
     }
-    vector<string>& args = tokens[i]->tok_funcall->arguments;
-    vector<con_token*> arg_tokens;
-    for (size_t j = 0; j < args.size(); j++) {
-      con_token* arg_tok = new con_token();
-      arg_tok->tok_type = CMD;
-      con_cmd* arg_cmd = new con_cmd();
-      arg_tok->tok_cmd = arg_cmd;
-      arg_cmd->command = "mov";
-      arg_cmd->arg1 = reg_to_str(j, bitwidth);
-      arg_cmd->arg2 = args[j];
-      arg_tokens.push_back(arg_tok);
-    }
+    vector<con_token*> arg_tokens = push_args(tokens[i]->tok_funcall->arguments);
     con_token* call_tok = new con_token();
     call_tok->tok_type = CMD;
     con_cmd* call_cmd = new con_cmd();
@@ -392,18 +396,7 @@ void apply_syscalls(std::vector<con_token*>& tokens)
     if (tokens[i]->tok_type != SYSCALL) {
       continue;
     }
-    vector<string>& args = tokens[i]->tok_syscall->arguments;
-    vector<con_token*> arg_tokens;
-    for (size_t j = 0; j < args.size(); j++) {
-      con_token* arg_tok = new con_token();
-      arg_tok->tok_type = CMD;
-      con_cmd* arg_cmd = new con_cmd();
-      arg_tok->tok_cmd = arg_cmd;
-      arg_cmd->command = "mov";
-      arg_cmd->arg1 = reg_to_str(j, bitwidth);
-      arg_cmd->arg2 = args[j];
-      arg_tokens.push_back(arg_tok);
-    }
+    vector<con_token*> arg_tokens = push_args(tokens[i]->tok_syscall->arguments);
     con_token* call_tok1 = new con_token();
     call_tok1->tok_type = CMD;
     con_cmd* call_cmd = new con_cmd();
