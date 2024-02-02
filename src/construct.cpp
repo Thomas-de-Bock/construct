@@ -41,12 +41,22 @@ int main(int argc, char** argv)
   apply_whiles(tokens);
   apply_funcalls(tokens);
   apply_syscalls(tokens);
-  std::vector<con_macro> empty_macros;
+  std::vector<con_macro*> empty_macros; // pointer to con_macros in tokens, not a copy
   apply_macros(tokens, empty_macros);
+  empty_macros.clear(); // remove the pointers to con_macro, not the con_macro objects themselves
   linearize_tokens(tokens);
 
   std::ofstream outfile;
   outfile.open(outpath);
   outfile << tokens_to_nasm(tokens);
   outfile.close();
+
+  for (std::vector<con_token*>::reverse_iterator r_it = tokens.rbegin(); r_it != tokens.rend(); ++r_it) {
+    delete *r_it;
+    *r_it = nullptr;
+  }
+  tokens.clear();
+  glob_cmd = nullptr; // deleted in tokens vector
+  glob_tok = nullptr; // deleted in tokens vector
+  return 0;
 }

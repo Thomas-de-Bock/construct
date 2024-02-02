@@ -160,60 +160,61 @@ static uint8_t str_to_reg(string reg_name)
     return 5;
   return 6;
 }
-static void apply_macro_to_token(con_token& token, vector<con_macro> macros)
+
+static size_t find_macro_in_arg(string arg, string macro)
+{
+  size_t pos = arg.find(macro);
+  if ((pos == 0 || (arg[pos-1]!='_' && !isalpha(arg[pos-1])))
+      && (pos+macro.size()-1 == arg.size()-1 || (arg[pos+macro.size()]!='_' && !isalpha(arg[pos+macro.size()])))) {
+    return pos;
+  }
+  return string::npos;
+}
+static void apply_macro_to_token(con_token& token, const vector<con_macro*>& macros)
 {
   if (token.tok_type != WHILE && token.tok_type != IF && token.tok_type != CMD) {
     return;
   }
   // Unoptimal, but more clear imo
   for (size_t i = 0; i < macros.size(); i++) {
-    con_macro* crntmacro = &macros[i];
+    const string& macro = macros[i]->macro;
+    const string& value = macros[i]->value;
     size_t pos;
     switch (token.tok_type) {
       case WHILE:
-        if (!token.tok_while->condition.arg1.empty() &&
-            (pos = token.tok_while->condition.arg1.find(crntmacro->macro)) != string::npos &&
-            (pos == 0 || !isalpha(token.tok_while->condition.arg1[pos-1])) &&
-            (pos == token.tok_while->condition.arg1.size()-1
-             || !isalpha(token.tok_while->condition.arg1[pos+crntmacro->macro.size()]))) {
-          token.tok_while->condition.arg1.replace(pos, crntmacro->macro.size(), crntmacro->value);
+        pos = find_macro_in_arg(token.tok_while->condition.arg1, macro);
+        while (pos != string::npos) {
+          token.tok_while->condition.arg1.replace(pos, macro.size(), value);
+          pos = find_macro_in_arg(token.tok_while->condition.arg1, macro);
         }
-        if (!token.tok_while->condition.arg2.empty() &&
-            (pos = token.tok_while->condition.arg2.find(crntmacro->macro)) != string::npos &&
-            (pos == 0 || !isalpha(token.tok_while->condition.arg2[pos-1])) &&
-            (pos == token.tok_while->condition.arg2.size()-1
-             || !isalpha(token.tok_while->condition.arg2[pos+crntmacro->macro.size()]))) {
-          token.tok_while->condition.arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
+        pos = find_macro_in_arg(token.tok_while->condition.arg2, macro);
+        while (pos != string::npos) {
+          token.tok_while->condition.arg2.replace(pos, macro.size(), value);
+          pos = find_macro_in_arg(token.tok_while->condition.arg2, macro);
         }
       break;
       case IF:
-        if (!token.tok_if->condition.arg1.empty() &&
-            (pos = token.tok_if->condition.arg1.find(crntmacro->macro)) != string::npos &&
-            (pos == 0 || !isalpha(token.tok_if->condition.arg1[pos-1])) &&
-            (pos == token.tok_if->condition.arg1.size()-1
-             || !isalpha(token.tok_if->condition.arg1[pos+crntmacro->macro.size()]))) {
-          token.tok_if->condition.arg1.replace(pos, crntmacro->macro.size(), crntmacro->value);
+        pos = find_macro_in_arg(token.tok_if->condition.arg1, macro);
+        while (pos != string::npos) {
+          token.tok_if->condition.arg1.replace(pos, macro.size(), value);
+          pos = find_macro_in_arg(token.tok_if->condition.arg1, macro);
         }
-        if (!token.tok_if->condition.arg2.empty() &&
-            (pos = token.tok_if->condition.arg2.find(crntmacro->macro)) != string::npos &&
-            (pos == 0 || !isalpha(token.tok_if->condition.arg2[pos-1])) &&
-            (pos == token.tok_if->condition.arg2.size()-1
-             || !isalpha(token.tok_if->condition.arg2[pos+crntmacro->macro.size()]))) {
-          token.tok_if->condition.arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
+        pos = find_macro_in_arg(token.tok_if->condition.arg2, macro);
+        while (pos != string::npos) {
+          token.tok_if->condition.arg2.replace(pos, macro.size(), value);
+          pos = find_macro_in_arg(token.tok_if->condition.arg2, macro);
         }
       break;
       case CMD:
-        if (!token.tok_cmd->arg1.empty() &&
-            (pos = token.tok_cmd->arg1.find(crntmacro->macro)) != string::npos &&
-            (pos == 0 || !isalpha(token.tok_cmd->arg1[pos-1])) &&
-            (pos == token.tok_cmd->arg1.size()-1 || !isalpha(token.tok_cmd->arg1[pos+crntmacro->macro.size()]))) {
-          token.tok_cmd->arg1.replace(pos, crntmacro->macro.size(), crntmacro->value);
+        pos = find_macro_in_arg(token.tok_cmd->arg1, macro);
+        while (pos != string::npos) {
+          token.tok_cmd->arg1.replace(pos, macro.size(), value);
+          pos = find_macro_in_arg(token.tok_cmd->arg1, macro);
         }
-        if (!token.tok_cmd->arg2.empty() &&
-            (pos = token.tok_cmd->arg2.find(crntmacro->macro)) != string::npos &&
-            (pos == 0 || !isalpha(token.tok_cmd->arg2[pos-1])) &&
-            (pos == token.tok_cmd->arg2.size()-1 || !isalpha(token.tok_cmd->arg2[pos+crntmacro->macro.size()]))) {
-          token.tok_cmd->arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
+        pos = find_macro_in_arg(token.tok_cmd->arg2, macro);
+        while (pos != string::npos) {
+          token.tok_cmd->arg2.replace(pos, macro.size(), value);
+          pos = find_macro_in_arg(token.tok_cmd->arg2, macro);
         }
       break;
       default:
@@ -440,25 +441,11 @@ void apply_functions(std::vector<con_token*>& tokens)
     tokens[i]->tokens.push_back(ret_tok);
   }
 }
-void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros)
+void apply_macros(vector<con_token*>& tokens, vector<con_macro*>& knownmacros)
 {
   for (size_t i = 0; i < tokens.size(); i++) {
     if (tokens[i]->tok_type == MACRO) {
-      // Filter spaces from macro and value pair
-      con_macro* f_macro = new con_macro();
-      f_macro->macro = "";
-      f_macro->value = "";
-      for (size_t j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
-        if (tokens[i]->tok_macro->macro[j] != ' ') {
-          f_macro->macro += tokens[i]->tok_macro->macro[j];
-        }
-      }
-      for (size_t j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
-        if (tokens[i]->tok_macro->value[j] != ' ')
-          f_macro->value += tokens[i]->tok_macro->value[j];
-      }
-      knownmacros.push_back(*f_macro);
-      delete f_macro;
+      knownmacros.push_back(tokens[i]->tok_macro);
       continue;
     }
     apply_macro_to_token(*tokens[i], knownmacros);

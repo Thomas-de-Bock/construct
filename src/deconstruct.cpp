@@ -8,7 +8,6 @@
 
 using namespace std;
 
-static void to_lower(string& str);
 static vector<string> split(const string& input, const string& chars);
 static uint16_t get_syscall_number(const std::string& syscall_name);
 
@@ -71,10 +70,9 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
   vector<con_token*> dl_tokens;
 
   // Serves as parent "section" where all tokens belong to, convenient for algo
-  con_section* parent_section = new con_section;
   con_token* parent_token = new con_token;
-  parent_token->tok_section = parent_section;
   parent_token->tok_type = SECTION;
+  parent_token->tok_section = new con_section; // is deleted inside parent_token
   parent_token->indentation = -1;
 
   stack<con_token*> parent_stack;
@@ -105,8 +103,8 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens)
 
   vector<con_token*> delinearized_tokens = parent_token->tokens;
 
-  delete parent_section;
   delete parent_token;
+  parent_token = nullptr;
 
   return delinearized_tokens;
 }
@@ -244,7 +242,6 @@ con_token* parse_line(string line)
 }
 vector<con_token*> parse_construct(string code)
 {
-  to_lower(code);
   vector<string> code_split = split(code, "\n");
   vector<con_token*> tokens;
   bool in_data = false;
@@ -279,16 +276,6 @@ vector<con_token*> parse_construct(string code)
 }
 
 // ----- ----- ----- ----- ----- ----- helper functions impl ----- ----- ----- ----- -----
-
-void to_lower(string& str)
-{
-  for (string::iterator it = str.begin(); it != str.end(); ++it) {
-    if (*it >= 'A' && *it <= 'Z') {
-      *it -= 'A';
-      *it += 'a';
-    }
-  }
-}
 
 vector<string> split(const string& input, const string& chars)
 {
