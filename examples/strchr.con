@@ -4,23 +4,25 @@ section .text
 function strchr(str, chr):
 	!ptrresult rax
 	!findchr sil
-	mov ptrresult, 0
-	while byte[str] ne 0:
+	!end_of_str 0
+	!nullptr 0
+	mov ptrresult, nullptr
+	while byte[str] ne end_of_str:
 		if byte[str] e findchr:
 			mov ptrresult, str
 			ret
 		inc str
 
 function main():
-	call strchr(teststr, 87)
+	!W_letter 87
+	call strchr(teststr, W_letter)
 	!result rax
 	call printf(fmt, result)
 	call printf(fmt, teststr)
 
-	mov rax, 60
-	syscall
+	syscall exit()
 
 section .data
-fmt: db "%p", 10, 0
 teststr: db "Hello World!", 0
+fmt: db "%p", 10, 0
 
