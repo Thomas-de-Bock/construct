@@ -28,8 +28,22 @@ enum CON_TOKENTYPE {
   FUNCTION,
   CMD,
   MACRO,
-  FUNCALL,
-  SYSCALL
+  FUNCALL
+};
+
+
+struct con_token {
+  CON_TOKENTYPE tok_type;
+  int indentation;
+  struct con_section* tok_section;
+  struct con_tag* tok_tag;
+  struct con_while* tok_while;
+  struct con_if* tok_if;
+  struct con_function* tok_function;
+  struct con_cmd* tok_cmd;
+  struct con_macro* tok_macro;
+  struct con_funcall* tok_funcall;
+  std::vector<con_token*> tokens; // Only non-empty for if, while and function tokens
 };
 
 struct _con_condition {
@@ -37,7 +51,6 @@ struct _con_condition {
   std::string arg1;
   std::string arg2;
 };
-
 
 struct con_section {
   std::string name;
@@ -74,59 +87,6 @@ struct con_macro {
 struct con_funcall {
   std::string funcname;
   std::vector<std::string> arguments;
-};
-
-struct con_syscall {
-  uint16_t number;
-  std::vector<std::string> arguments;
-};
-
-
-struct con_token {
-  CON_TOKENTYPE tok_type;
-  int indentation;
-  con_section* tok_section = nullptr;
-  con_tag* tok_tag = nullptr;
-  con_while* tok_while = nullptr;
-  con_if* tok_if = nullptr;
-  con_function* tok_function = nullptr;
-  con_cmd* tok_cmd = nullptr;
-  con_macro* tok_macro = nullptr;
-  con_funcall* tok_funcall = nullptr;
-  con_syscall* tok_syscall = nullptr;
-  std::vector<con_token*> tokens; // relevant to "if", "while", "function" and "syscall" tokens
-
-  ~con_token() {
-    switch (tok_type) {
-      case SECTION:
-        if (tok_section != nullptr) delete tok_section;
-      break;
-      case TAG:
-        if (tok_tag != nullptr) delete tok_tag;
-      break;
-      case WHILE:
-        if (tok_while != nullptr) delete tok_while;
-      break;
-      case IF:
-        if (tok_if != nullptr) delete tok_if;
-      break;
-      case FUNCTION:
-        if (tok_function != nullptr) delete tok_function;
-      break;
-      case CMD:
-        if (tok_cmd != nullptr) delete tok_cmd;
-      break;
-      case MACRO:
-        if (tok_macro != nullptr) delete tok_macro;
-      break;
-      case FUNCALL:
-        if (tok_funcall != nullptr) delete tok_funcall;
-      break;
-      case SYSCALL:
-        if (tok_syscall != nullptr) delete tok_syscall;
-      break;
-    }
-  }
 };
 
 #endif // CONSTRUCT_TYPES_H_

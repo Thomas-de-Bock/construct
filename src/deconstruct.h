@@ -19,7 +19,6 @@ con_function* parse_function(std::string line);
 con_cmd* parse_cmd(std::string line);
 con_macro* parse_macro(std::string line);
 con_funcall* parse_funcall(std::string line);
-con_syscall* parse_syscall(std::string line);
 
 con_token* parse_line(std::string line);
 std::vector<con_token*> parse_construct(std::string code);
