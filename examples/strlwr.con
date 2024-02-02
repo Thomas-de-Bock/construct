@@ -2,24 +2,27 @@ extern printf
 
 section .text
 function strlwr(str):
-	while byte[str] ne 0:
-		if byte[str] ge 65:
-			if byte[str] le 90:
+	!A_letter 65
+	!Z_letter 90
+	!end_of_str 0
+	!A_to_a 32
+	while byte[str] ne end_of_str:
+		if byte[str] ge A_letter:
+			if byte[str] le Z_letter:
 				!crntchr sil
 				mov crntchr, byte[str]
-				add crntchr, 32
+				add crntchr, A_to_a
 				mov byte[str], crntchr
 		inc str
 
 
 function main():
-	call strlwr(teststring)
-	call printf(fmt, teststring)
+	call strlwr(teststr)
+	call printf(fmt, teststr)
 
-	mov rax, 60
-	syscall
+	syscall exit()
 
 section .data
-teststring db "HeLlO WoRlD", 0
+teststr: db "HeLlO WoRlD", 0
 fmt: db "%s", 10, 0
 

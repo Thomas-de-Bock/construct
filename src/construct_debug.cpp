@@ -17,7 +17,7 @@ std::string tokentype_to_string(CON_TOKENTYPE type)
     case IF:
       return "if";
     case FUNCTION:
-      return "func";
+      return "function";
     case CMD:
       return "cmd";
     case MACRO:

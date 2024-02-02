@@ -20,7 +20,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition);
 void apply_whiles(std::vector<con_token*>& tokens);
 void apply_ifs(std::vector<con_token*>& tokens);
 void apply_functions(std::vector<con_token*>& tokens);
-void apply_macros(std::vector<con_token*>& tokens, std::vector<con_macro> macros);
+void apply_macros(std::vector<con_token*>& tokens, std::vector<con_macro*>& macros);
 void apply_funcalls(std::vector<con_token*>& tokens);
 void apply_syscalls(std::vector<con_token*>& tokens);
 
