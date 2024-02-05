@@ -9,8 +9,7 @@ using namespace std;
 
 static void to_lower(string& str);
 
-static vector<string> split(const string& input, const string& chars);
-
+static vector<string> split(const string& input, const string& delims, const bool& compress_adj_delims = false);
 
 int get_line_indentation(string line) {
   int indentation = 0;
@@ -253,28 +252,29 @@ vector<con_token*> parse_construct(string code) {
 void to_lower(string& str) {
   for (string::iterator it = str.begin(); it != str.end(); ++it) {
     if (*it >= 'A' && *it <= 'Z') {
-        *it -= 'A';
-        *it += 'a';
+      *it -= 'A';
+      *it += 'a';
     }
   }
 }
 
-vector<string> split(const string& input, const string& chars) {
+vector<string> split(const string& input, const string& delims, const bool& compress_adj_delims)
+{
   vector<string> result;
   string tmp;
   bool prev_is_delim = false;
   for (string::const_iterator input_it = input.cbegin(); input_it != input.cend(); ++input_it) {
-    bool is_in_chars = false;
-    for (string::const_iterator chars_it = chars.cbegin(); chars_it != chars.cend(); ++chars_it) {
-      if (*chars_it == *input_it) {
-        is_in_chars = true;
+    bool is_delim = false;
+    for (string::const_iterator delim_it = delims.cbegin(); delim_it != delims.cend(); ++delim_it) {
+      if (*delim_it == *input_it) {
+        is_delim = true;
         break;
       }
     }
-    if (is_in_chars) {
-      if (prev_is_delim) continue;
-      if (!tmp.empty())
-        result.push_back(tmp);
+
+    if (is_delim) {
+      if (prev_is_delim && compress_adj_delims) continue;
+      result.push_back(tmp);
       tmp.clear();
       prev_is_delim = true;
     } else {
@@ -282,7 +282,6 @@ vector<string> split(const string& input, const string& chars) {
       prev_is_delim = false;
     }
   }
-  if (!tmp.empty())
-    result.push_back(tmp);
+  result.push_back(tmp);
   return result;
 }
