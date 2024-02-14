@@ -16,8 +16,8 @@ std::string tokentype_to_string(CON_TOKENTYPE type) {
       return "cmd";
     case MACRO:
       return "macro";
-	default:
-	  break;
+    default:
+      break;
   }
   return "unknown";
 }
@@ -60,8 +60,8 @@ std::string token_to_string(con_token token) {
     case MACRO:
       tokstring += ", macro: " + token.tok_macro->macro + ", value: " + token.tok_macro->value;
       break;
-	default:
-	  break;
+    default:
+      break;
   }
   if(token.tokens.size() > 0) {
     tokstring += ", tokens: {\n";

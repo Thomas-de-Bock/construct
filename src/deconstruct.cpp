@@ -47,7 +47,7 @@ CON_COMPARISON str_to_comparison(string comp) {
     return LE;
   if(comp == "ge")
     return GE;
-  throw "Invalid comparison";
+  throw std::invalid_argument("Invalid comparison string: '" + comp + "'");
 }
 
 
@@ -206,7 +206,7 @@ con_token* parse_line(string line) {
       break;
     case FUNCALL:
       token->tok_funcall = parse_funcall(f_line);
-	  break;
+      break;
     case SECTION:
       token->tok_section = parse_section(f_line);
       break;

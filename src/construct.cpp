@@ -1,40 +1,40 @@
 #include "deconstruct.h"
 #include "reconstruct.h"
 #include "construct_flags.h"
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char** argv) {
   std::string path;
   std::string outpath;
   if(handle_flags(argc, argv, &path, &outpath) != 0) {
-    std::cout << "Some flag(s) not set" << std::endl;
+    std::cerr << "Some flag(s) not set" << std::endl;
     return 0;
   }
   if(path.empty()) {
-    std::cout << "No input file specified" << std::endl;
+    std::cerr << "No input file specified" << std::endl;
     return 0;
   }
 
   std::ifstream inpfile(path);
   if (!inpfile.is_open()) {
-	std::cout << "Could not open input file" << std::endl;
-	return 0;
+    std::cerr << "Could not open input file" << std::endl;
+    return 0;
   }
   if (!inpfile.good()) {
-	std::cout << "Input file is not good" << std::endl;
-	return 0;
+    std::cerr << "Input file is not good" << std::endl;
+    return 0;
   }
 
   std::ofstream outfile;
   outfile.open(outpath);
   if (!outfile.is_open()) {
-	std::cout << "Could not open output file" << std::endl;
-	return 0;
+    std::cerr << "Could not open output file" << std::endl;
+    return 0;
   }
   if (!outfile.good()) {
-	std::cout << "Output file is not good" << std::endl;
-	return 0;
+    std::cerr << "Output file is not good" << std::endl;
+    return 0;
   }
 
   std::stringstream buffer;

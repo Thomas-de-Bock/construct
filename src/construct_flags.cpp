@@ -35,15 +35,15 @@ int set_bitwidth(char* argv) {
  *   (e.g. "foo.con" -> "foo.asm")
  */
 string get_outpath(string path) {
-	if (path.find(".") == string::npos) {
-		return path + ".construct.asm";
-	}
-	int last_dot = path.find_last_of(".");
-	std::string extension = path.substr(last_dot);
-	if (extension == ".asm") {
-		return path.substr(0, last_dot) + ".construct.asm";
-	}
-	return path.substr(0, last_dot) + ".asm";
+  if (path.find(".") == string::npos) {
+    return path + ".construct.asm";
+  }
+  int last_dot = path.find_last_of(".");
+  std::string extension = path.substr(last_dot);
+  if (extension == ".asm") {
+    return path.substr(0, last_dot) + ".construct.asm";
+  }
+  return path.substr(0, last_dot) + ".asm";
 }
 
 int handle_flags(int argc, char** argv, string* path, string* outpath) {
@@ -74,16 +74,16 @@ int handle_flags(int argc, char** argv, string* path, string* outpath) {
     }
   }
   if(!bitwidth_set) {
-    cout << "flag -f (format) not set" << endl;
+    cerr << "flag -f (format) not set" << endl;
     return -1;
   }
   if(!path_set) {
-    cout << "flag -i (input file) not set" << endl;
+    cerr << "flag -i (input file) not set" << endl;
     return -1;
   }
   if(!outpath_set) {
-	(*outpath) = get_outpath((*path));
-	cout << "flag -o (output file) not set, using " << (*outpath) << endl;
+    (*outpath) = get_outpath((*path));
+    cerr << "flag -o (output file) not set, using " << (*outpath) << endl;
   }
   return 0;
 }

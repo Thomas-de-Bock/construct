@@ -133,7 +133,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition) {
     case GE:
       return L;
   }
-  throw "Unknown comparison";
+  throw std::runtime_error("Invalid comparison");
 }
 
 void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
@@ -193,8 +193,8 @@ void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
           token.tok_cmd->arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
       break;
-	  default:
-	  break;
+      default:
+      break;
     }
   }
 }

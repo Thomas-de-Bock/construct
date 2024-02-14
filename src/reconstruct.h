@@ -1,6 +1,7 @@
-#include<string>
-#include<iostream>
-#include<stdint.h>
+#include <string>
+#include <iostream>
+#include <stdint.h>
+#include <exception>
 #include "construct_types.h"
 
 // Used for naming tags
