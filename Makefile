@@ -1,4 +1,8 @@
-NAME = construct
+ifeq ($(OS),Windows_NT)
+	NAME = construct.exe
+else
+	NAME = construct
+endif
 
 CC = g++
 CFLAGS = -Wall -Wextra #-Werror 
