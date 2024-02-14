@@ -9,32 +9,32 @@ int main(int argc, char** argv) {
   std::string outpath;
   if(handle_flags(argc, argv, &path, &outpath) != 0) {
     std::cerr << "Some flag(s) not set" << std::endl;
-    return 0;
+    return -1;
   }
   if(path.empty()) {
     std::cerr << "No input file specified" << std::endl;
-    return 0;
+    return -1;
   }
 
   std::ifstream inpfile(path);
   if (!inpfile.is_open()) {
     std::cerr << "Could not open input file" << std::endl;
-    return 0;
+    return 1;
   }
   if (!inpfile.good()) {
     std::cerr << "Input file is not good" << std::endl;
-    return 0;
+    return 1;
   }
 
   std::ofstream outfile;
   outfile.open(outpath);
   if (!outfile.is_open()) {
     std::cerr << "Could not open output file" << std::endl;
-    return 0;
+    return 2;
   }
   if (!outfile.good()) {
     std::cerr << "Output file is not good" << std::endl;
-    return 0;
+    return 2;
   }
 
   std::stringstream buffer;
@@ -60,4 +60,5 @@ int main(int argc, char** argv) {
 
   outfile << tokens_to_nasm(tokens);
   outfile.close();
+  return 0;
 }
