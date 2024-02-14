@@ -38,4 +38,4 @@ fclean: clean
 
 re: fclean $(OUTPUT_FILE)
 
-.PHONY: clean fclean re
+.PHONY: all clean fclean re
