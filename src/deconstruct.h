@@ -1,11 +1,11 @@
 #include "construct_debug.h"
-#include<boost/algorithm/string/classification.hpp>
-#include<boost/algorithm/string/split.hpp>
-#include<boost/algorithm/string.hpp>
-#include<fstream>
-#include<sstream>
-#include<iostream>
-#include<stack>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <stack>
 
 int get_line_indentation(std::string line);
 CON_TOKENTYPE get_token_type(std::string line);

@@ -1,5 +1,6 @@
 #include "reconstruct.h"
 #include "construct_types.h"
+#include <vector>
 
 using namespace std;
 int if_amnt = 0;
@@ -97,6 +98,7 @@ string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth) {
       }
     break;
   }
+  // ERROR
 }
 
 string comparison_to_string(CON_COMPARISON condition) {
@@ -132,6 +134,7 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition) {
     case GE:
       return L;
   }
+  return ERROR;
 }
 
 void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
@@ -390,7 +393,6 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens) {
     if(tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO || tokens[i]->tok_type == FUNCALL) {
       continue;
     }
-    output += "\n";
     if(tokens[i]->tok_type == CMD) {
       output += tokens[i]->tok_cmd->command;
       if(!tokens[i]->tok_cmd->arg1.empty()) {
@@ -399,16 +401,64 @@ std::string tokens_to_nasm(std::vector<con_token*>& tokens) {
       if(!tokens[i]->tok_cmd->arg2.empty()) {
         output += ", " + tokens[i]->tok_cmd->arg2;
       }
+      output += "\n";
       continue;
     }
     if(tokens[i]->tok_type == TAG) {
       output += tokens[i]->tok_tag->name + ":";
+      output += "\n";
       continue;
     }
     if(tokens[i]->tok_type == SECTION) {
       output += "section " + tokens[i]->tok_section->name;
+      output += "\n";
       continue;
     }
   }
   return output;
+}
+
+void merge_labels(std::vector<con_token*>& tokens) {
+  // can break this into dedicated if/while/function label maps to preserve readability, at the cost of not being able to merge cross-type labels
+  std::unordered_map<std::string, int> labels;
+  string last_token = "";
+  std::vector<int> to_remove;
+  int cur_label = 0;
+  
+  for(int i = 0; i < tokens.size(); i++) {
+    if(tokens[i]->tok_type == IF || tokens[i]->tok_type == WHILE || tokens[i]->tok_type == FUNCTION || tokens[i]->tok_type == MACRO || tokens[i]->tok_type == FUNCALL) {
+      continue;
+    }
+    if(tokens[i]->tok_type == TAG) {
+      if (labels.find(tokens[i]->tok_tag->name) != labels.end()) {
+        throw "Label " + tokens[i]->tok_tag->name + " defined twice";
+      }
+      if (last_token != "") {
+        cur_label--; // consider this label as the same as the previous
+        to_remove.push_back(i);
+      }
+      labels[tokens[i]->tok_tag->name] = cur_label;
+      cur_label++;
+      last_token = tokens[i]->tok_tag->name;
+    } else {
+      last_token = "";
+    }
+  }
+  for (int i = 0; i < to_remove.size(); i++) {
+    tokens.erase(tokens.begin()+to_remove[i]-i);
+  }
+  // replace references to labels with the correct number
+  for(int i = 0; i < tokens.size(); i++) {
+    if(tokens[i]->tok_type == CMD) {
+      if (labels.find(tokens[i]->tok_cmd->arg1) != labels.end()) {
+        tokens[i]->tok_cmd->arg1 = "label" + to_string(labels[tokens[i]->tok_cmd->arg1]);
+      }
+      if (labels.find(tokens[i]->tok_cmd->arg2) != labels.end()) {
+        tokens[i]->tok_cmd->arg2 = "label" + to_string(labels[tokens[i]->tok_cmd->arg2]);
+      }
+    }
+    if(tokens[i]->tok_type == TAG) {
+      tokens[i]->tok_tag->name = "label" + to_string(labels[tokens[i]->tok_tag->name]);
+    }
+  }
 }

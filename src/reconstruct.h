@@ -1,6 +1,7 @@
-#include<string>
-#include<iostream>
-#include<stdint.h>
+#include <string>
+#include <iostream>
+#include <stdint.h>
+#include <unordered_map>
 #include "construct_types.h"
 
 // Used for naming tags
@@ -25,5 +26,6 @@ void apply_funcalls(std::vector<con_token*>& tokens);
 void apply_whiles(std::vector<con_token*>& tokens);
 void apply_ifs(std::vector<con_token*>& tokens);
 void apply_macros(std::vector<con_token*>& tokens, std::vector<con_macro> macros);
+void merge_labels(std::vector<con_token*>& tokens);
 
 std::string tokens_to_nasm(std::vector<con_token*>& tokens);

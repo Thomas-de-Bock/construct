@@ -5,10 +5,11 @@ function strlwr(str):
 	while byte[str] ne 0:
 		if byte[str] ge 65:
 			if byte[str] le 90:
-				!crntchr sil
-				mov crntchr, byte[str]
-				add crntchr, 32
-				mov byte[str], crntchr
+				if byte[str] ne 95:
+					!crntchr sil
+					mov crntchr, byte[str]
+					add crntchr, 32
+					mov byte[str], crntchr
 		inc str
 
 

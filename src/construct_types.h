@@ -1,8 +1,8 @@
 #ifndef CON_TYPES_H
 #define CON_TYPES_H
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 enum CON_BITWIDTH {
   BIT8,
@@ -17,7 +17,8 @@ enum CON_COMPARISON {
   L,
   G,
   LE,
-  GE
+  GE,
+  ERROR,
 };
 
 enum CON_TOKENTYPE {
