@@ -1,7 +1,12 @@
+#include <string>
+#include <vector>
+#include <stdexcept>
 #include "construct_debug.h"
+#include "construct_types.h"
+#include "reconstruct.h"     // comparison_to_string()
 
 std::string tokentype_to_string(CON_TOKENTYPE type) {
-  switch(type) {
+  switch (type) {
     case SECTION:
       return "section";
     case TAG:
@@ -16,13 +21,15 @@ std::string tokentype_to_string(CON_TOKENTYPE type) {
       return "cmd";
     case MACRO:
       return "macro";
+    case FUNCALL:
+      return "funcall";
   }
-  return "unknown";
+  throw std::invalid_argument("Invalid token type: "+std::to_string(static_cast<int>(type)));
 }
 
 std::string token_to_string(con_token token) {
   std::string tokstring = "type: " + tokentype_to_string(token.tok_type);
-  switch(token.tok_type) {
+  switch (token.tok_type) {
     case SECTION:
       tokstring += ", name: " + token.tok_section->name;
       break;
@@ -37,19 +44,19 @@ std::string token_to_string(con_token token) {
       break;
     case FUNCTION:
       tokstring += ", function: " + token.tok_function->name + ", arguments: ";
-      for(int i = 0; i < token.tok_function->arguments.size(); i++) {
-        if(i != 0) {
+      for (size_t i = 0; i < token.tok_function->arguments.size(); i++) {
+        if (i != 0) {
           tokstring += ", ";
         }
         tokstring += token.tok_function->arguments[i];
       }
       break;
     case CMD:
-      if(!token.tok_cmd->arg1.empty() && !token.tok_cmd->arg2.empty()) {
+      if (!token.tok_cmd->arg1.empty() && !token.tok_cmd->arg2.empty()) {
         tokstring += ", cmd: " + token.tok_cmd->command + " " + token.tok_cmd->arg1 + ", " + token.tok_cmd->arg2;
         break;
       }
-      if(!token.tok_cmd->arg1.empty()) {
+      if (!token.tok_cmd->arg1.empty()) {
         tokstring += ", cmd: " + token.tok_cmd->command + " " + token.tok_cmd->arg1;
         break;
       }
@@ -58,10 +65,12 @@ std::string token_to_string(con_token token) {
     case MACRO:
       tokstring += ", macro: " + token.tok_macro->macro + ", value: " + token.tok_macro->value;
       break;
+    default: // FUNCALL
+      break;
   }
-  if(token.tokens.size() > 0) {
+  if (token.tokens.size() > 0) {
     tokstring += ", tokens: {\n";
-    for(int i = 0; i < token.tokens.size(); i++) {
+    for (size_t i = 0; i < token.tokens.size(); i++) {
       tokstring += token_to_string(*token.tokens[i]) + "\n";
     }
     tokstring += "}";
