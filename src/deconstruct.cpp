@@ -1,11 +1,21 @@
+#include "construct_error.h"
+#include "construct_flags.h"
 #include "construct_types.h"
 #include "deconstruct.h"
-#include <boost/algorithm/string/classification.hpp>
 
+void string_split(std::string& input, std::vector<std::string>& output, std::string delimiter, bool token_compress_on) {
+    std::string token;
+    std::istringstream tokenStream(input);
+    while (std::getline(tokenStream, token, delimiter[0])) {
+        if (!token.empty() || !token_compress_on) {
+            output.push_back(token);
+        }
+    }
+}
 using namespace std;
 int get_line_indentation(string line) {
   int indentation = 0;
-  for(int i = 0; i < line.size(); i++) {
+  for(size_t i = 0; i < line.size(); i++) {
     if(line[i] == '\t') {
       indentation++;
       continue;
@@ -16,20 +26,20 @@ int get_line_indentation(string line) {
 }
 
 // Expects formatted line
-CON_TOKENTYPE get_token_type(string line) {
-  if(line[0] == '!')
+CON_TOKENTYPE get_token_type(linedata* linedata) {
+  if((*linedata->line)[0] == '!')
     return MACRO;
-  if(line.substr(0, 3) == "if ")
+  if(linedata->line->substr(0, 3) == "if ")
     return IF;
-  if(line.substr(0, 6) == "while ")
+  if(linedata->line->substr(0, 6) == "while ")
     return WHILE;
-  if(line.substr(0, 9) == "function ")
+  if(linedata->line->substr(0, 9) == "function ")
     return FUNCTION;
-  if(line.substr(0, 8) == "section ")
+  if(linedata->line->substr(0, 8) == "section ")
     return SECTION;
-  if(line.substr(0, 5) == "call " && line.find('(') != string::npos && line.find(')') != string::npos)
+  if(linedata->line->substr(0, 5) == "call " && linedata->line->find('(') != string::npos && linedata->line->find(')') != string::npos)
     return FUNCALL;
-  if(line.find(' ') == string::npos && line[line.size()-1] == ':')
+  if(linedata->line->find(' ') == string::npos && (*linedata->line)[linedata->line->size()-1] == ':')
     return TAG;
   return CMD;
 }
@@ -47,7 +57,7 @@ CON_COMPARISON str_to_comparison(string comp) {
     return LE;
   if(comp == "ge")
     return GE;
-  //ERROR
+  return COMPARISON_ERROR;
 }
 
 
@@ -72,7 +82,7 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens) {
   // If token is while, if or function it is pushed to stack and becomes new parent.
   // if indentation goes up, new token is pushed to stack, when indentation goes down,
   // tops of stack are popped off by how much it decreased.
-  for(int i = 0; i < tokens.size(); i++) {
+  for(size_t i = 0; i < tokens.size(); i++) {
     if(parent_stack.top()->indentation - tokens[i]->indentation >= 0) {
       int indentation_diff = parent_stack.top()->indentation - tokens[i]->indentation+1;
       for(int j = 0; j < indentation_diff; j++) {
@@ -95,48 +105,59 @@ vector<con_token*> delinearize_tokens(std::vector<con_token*> tokens) {
   return delinearized_tokens;
 }
 
-con_macro* parse_macro(string line) {
+con_macro* parse_macro(linedata* linedata) {
+  linedata->line_split = NULL;
   con_macro* tok_macro = new con_macro();
-  int spacepos = line.find(' ');
-  tok_macro->macro = line.substr(1, spacepos-1);
-  tok_macro->value = line.substr(spacepos+1, line.size()-spacepos-1);
+  int spacepos = linedata->line->find(' ');
+  tok_macro->macro = linedata->line->substr(1, spacepos-1);
+  tok_macro->value = linedata->line->substr(spacepos+1, linedata->line->size()-spacepos-1);
   return tok_macro;
 }
 
-con_if* parse_if(string line) {
+con_if* parse_if(linedata* linedata) {
   con_if* tok_if = new con_if();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" "));
+  string_split(*linedata->line, line_split, " ", false);
+  linedata->line_split = &line_split;
   tok_if->condition.arg1 = line_split[1];
   tok_if->condition.op = str_to_comparison(line_split[2]);
+  if(tok_if->condition.op == COMPARISON_ERROR) {
+    throw_parse_error(linedata, IF_ERROR, 2);
+  }
   tok_if->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1);
   return tok_if;
 }
-con_while* parse_while(string line) {
+con_while* parse_while(linedata* linedata) {
   con_while* tok_while = new con_while();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" "));
+  string_split(*linedata->line, line_split, " ", false);
+  linedata->line_split = &line_split;
   tok_while->condition.arg1 = line_split[1];
   tok_while->condition.op = str_to_comparison(line_split[2]);
+  if(tok_while->condition.op == COMPARISON_ERROR) {
+    throw_parse_error(linedata, WHILE_ERROR, 2);
+  }
   tok_while->condition.arg2 = line_split[3].substr(0, line_split[3].size()-1); // to remove :
   return tok_while;
 }
-con_section* parse_section(string line) {
+con_section* parse_section(linedata* linedata) {
   con_section* tok_section = new con_section();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" "));
+  string_split(*linedata->line, line_split, " ", false);
+  linedata->line_split = &line_split;
   tok_section->name = line_split[1];
   return tok_section;
 }
-con_tag* parse_tag(string line) {
+con_tag* parse_tag(linedata* linedata) {
   con_tag* tok_tag = new con_tag();
-  tok_tag->name = line.substr(0, line.size()-1);
+  tok_tag->name = linedata->line->substr(0, linedata->line->size()-1);
   return tok_tag;
 }
-con_cmd* parse_cmd(string line) {
+con_cmd* parse_cmd(linedata* linedata) {
   con_cmd* tok_cmd = new con_cmd();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of(" ,"));
+  string_split(*linedata->line, line_split, " ,", false);
+  linedata->line_split = &line_split;
   tok_cmd->command = line_split[0];
   if(line_split.size() > 1)
     tok_cmd->arg1 = line_split[1];
@@ -144,12 +165,13 @@ con_cmd* parse_cmd(string line) {
     tok_cmd->arg2 = line_split[3];
   return tok_cmd;
 }
-con_function* parse_function(string line) {
+con_function* parse_function(linedata* linedata) {
   con_function* tok_function = new con_function();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of("():,"));
+  string_split(*linedata->line, line_split, "():,", false);
+  linedata->line_split = &line_split;
   tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
-  for(int i = 1; i < line_split.size()-2; i++) {
+  for(size_t i = 1; i < line_split.size()-2; i++) {
     if(line_split[i].empty()) {
       continue;
     }
@@ -157,12 +179,13 @@ con_function* parse_function(string line) {
   }
   return tok_function;
 }
-con_funcall* parse_funcall(string line) {
+con_funcall* parse_funcall(linedata* linedata) {
   con_funcall* tok_funcall = new con_funcall();
   vector<string> line_split;
-  boost::split(line_split, line, boost::is_any_of("(),"));
+  string_split(*linedata->line, line_split, "(),", false);
+  linedata->line_split = &line_split;
   tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
-  for(int i = 1; i < line_split.size()-1; i++) {
+  for(size_t i = 1; i < line_split.size()-1; i++) {
     if(line_split[i].empty()) {
       continue;
     }
@@ -172,64 +195,74 @@ con_funcall* parse_funcall(string line) {
 }
 
 // Does not expect formatted line, only lowercase
-con_token* parse_line(string line) {
+con_token* parse_line(linedata* linedata) {
   con_token* token = new con_token;
   //remove multiple spaces from line
   string f_line = "";
   bool caught_space = false;
-  for(int i = 0; i < line.size(); i++) {
-    if(line[i] == ' ') {
+  for(size_t i = 0; i < linedata->line->size(); i++) {
+    if((*linedata->line)[i] == ' ') {
       if(!caught_space) {
-        f_line += line[i];
+        f_line += (*linedata->line)[i];
         caught_space = true;
       }
     } else {
-      if(line[i] != '\t') {
-        f_line += line[i];
+      if((*linedata->line)[i] != '\t') {
+        f_line += (*linedata->line)[i];
       }
       caught_space = false;
-    } 
+    }
   }
-  token->tok_type = get_token_type(f_line);
+  linedata->line = &f_line;
+  token->tok_type = get_token_type(linedata);
   switch(token->tok_type) {
     case MACRO:
-      token->tok_macro = parse_macro(f_line);
+      token->tok_macro = parse_macro(linedata);
       break;
     case IF:
-      token->tok_if = parse_if(f_line);
+      token->tok_if = parse_if(linedata);
       break;
     case WHILE:
-      token->tok_while = parse_while(f_line);
+      token->tok_while = parse_while(linedata);
       break;
     case FUNCTION:
-      token->tok_function = parse_function(f_line);
+      token->tok_function = parse_function(linedata);
       break;
     case FUNCALL:
-      token->tok_funcall = parse_funcall(f_line);
+      token->tok_funcall = parse_funcall(linedata);
     case SECTION:
-      token->tok_section = parse_section(f_line);
+      token->tok_section = parse_section(linedata);
       break;
     case TAG:
-      token->tok_tag = parse_tag(f_line);
+      token->tok_tag = parse_tag(linedata);
       break;
     case CMD:
-      token->tok_cmd = parse_cmd(f_line);
+      token->tok_cmd = parse_cmd(linedata);
       break;
   }
   return token;
 }
 vector<con_token*> parse_construct(string code) {
   vector<string> code_split;
-  boost::split(code_split, code, boost::is_any_of("\n"), boost::token_compress_on);
-  boost::to_lower(code);
+  string_split(code, code_split, "\n", true);
   vector<con_token*> tokens;
   bool in_data = false;
-  for(int i = 0; i < code_split.size(); i++) {
+  linedata* currentlinedata = NULL;
+  for(size_t i = 0; i < code_split.size(); i++) {
+    if(currentlinedata != NULL) {
+      free(currentlinedata);
+    }
     // Check if it contains any alphabet chars
     if(code_split[i].find_first_of("abcdefghijklmnopqrstuvwxyz!") == std::string::npos) {
       continue;
     }
-    con_token* new_token = parse_line(code_split[i]);
+    currentlinedata = new linedata;
+    currentlinedata->line = &code_split[i];
+    currentlinedata->filename = &inputfile;
+    currentlinedata->line_num = i+1;
+
+
+    con_token* new_token = parse_line(currentlinedata);
     new_token->indentation = get_line_indentation(code_split[i]);
     tokens.push_back(new_token);
     if(new_token->tok_type == SECTION && (new_token->tok_section->name == ".data" || new_token->tok_section->name == ".bss")) {
@@ -237,7 +270,6 @@ vector<con_token*> parse_construct(string code) {
     } else if(new_token->tok_type == SECTION && new_token->tok_section->name == ".text") {
       in_data = false;
     } else if(in_data) {
-      //TODO free original con_x
       con_cmd* data_cmd = new con_cmd;
       data_cmd->command = code_split[i];
       new_token->tok_type = CMD;

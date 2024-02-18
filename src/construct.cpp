@@ -1,22 +1,20 @@
 #include "deconstruct.h"
 #include "reconstruct.h"
 #include "construct_flags.h"
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char** argv) {
-  std::string path;
-  std::string outpath;
-  if(handle_flags(argc, argv, &path, &outpath) != 0) {
+  if(handle_flags(argc, argv) != 0) {
     std::cout << "Some flag(s) not set" << std::endl;
     return 0;
   }
-  if(path.empty()) {
+  if(inputfile.empty()) {
     std::cout << "No input file specified" << std::endl;
     return 0;
   }
 
-  std::ifstream inpfile(path);
+  std::ifstream inpfile(inputfile);
   std::stringstream buffer;
   buffer << inpfile.rdbuf();
   std::vector<con_token*> tokens = parse_construct(buffer.str());
@@ -39,7 +37,7 @@ int main(int argc, char** argv) {
   linearize_tokens(tokens);
 
   std::ofstream outfile;
-  outfile.open(outpath);
+  outfile.open(outputfile);
   outfile << tokens_to_nasm(tokens);
   outfile.close();
 }

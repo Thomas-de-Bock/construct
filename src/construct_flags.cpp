@@ -3,6 +3,10 @@
 
 using namespace std;
 
+CON_BITWIDTH bitwidth = BIT64;
+std::string inputfile;
+std::string outputfile;
+
 int set_bitwidth(char* argv) {
   if(strcmp(argv, "elf64") == 0) {
     bitwidth = BIT64;
@@ -24,11 +28,11 @@ int set_bitwidth(char* argv) {
   return -1;
 }
 
-int handle_flags(int argc, char** argv, string* path, string* outpath) {
+int handle_flags(int argc, char** argv) {
   bool bitwidth_set = false;
   bool path_set = false;
   bool outpath_set = false;
-  for(int i = 1; i < argc; i++) {
+  for(size_t i = 1; i < argc; i++) {
     if(strcmp(argv[i], "-f") == 0 && set_bitwidth(argv[i+1]) == 0) {
       bitwidth_set = true;
       i++;
@@ -37,18 +41,18 @@ int handle_flags(int argc, char** argv, string* path, string* outpath) {
     if(strcmp(argv[i], "-i") == 0) {
       path_set = true;
       i++;
-      (*path) = argv[i];
+      inputfile = argv[i];
       continue;
     }
     if(strcmp(argv[i], "-o") == 0) {
       outpath_set = true;
       i++;
-      (*outpath) = argv[i];
+      outputfile = argv[i];
       continue;
     }
-    if(path != NULL) {
+    if(!inputfile.empty()) {
       path_set = true;
-      (*path) = argv[i];
+      inputfile = argv[i];
     }
   }
   if(!bitwidth_set) {
