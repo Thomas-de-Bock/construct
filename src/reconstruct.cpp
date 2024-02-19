@@ -113,6 +113,8 @@ string comparison_to_string(CON_COMPARISON condition) {
       return "le";
     case GE:
       return "ge";
+	default:
+	  break;
   }
   return "unknown";
 }
@@ -131,6 +133,8 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition) {
       return G;
     case GE:
       return L;
+	default:
+	  break;
   }
   throw std::runtime_error("Invalid comparison");
 }

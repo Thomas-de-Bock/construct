@@ -5,18 +5,16 @@
 #include <fstream>
 
 int main(int argc, char** argv) {
-  std::string path;
-  std::string outpath;
-  if(handle_flags(argc, argv, &path, &outpath) != 0) {
+  if(handle_flags(argc, argv) != 0) {
     std::cerr << "Some flag(s) not set" << std::endl;
     return -1;
   }
-  if(path.empty()) {
+  if(inputfile.empty()) {
     std::cerr << "No input file specified" << std::endl;
     return -1;
   }
 
-  std::ifstream inpfile(path);
+  std::ifstream inpfile(inputfile);
   if (!inpfile.is_open()) {
     std::cerr << "Could not open input file" << std::endl;
     return 1;
@@ -27,7 +25,7 @@ int main(int argc, char** argv) {
   }
 
   std::ofstream outfile;
-  outfile.open(outpath);
+  outfile.open(outputfile);
   if (!outfile.is_open()) {
     std::cerr << "Could not open output file" << std::endl;
     return 2;

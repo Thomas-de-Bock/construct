@@ -50,11 +50,11 @@ string get_outpath(string path) {
   return path.substr(0, last_dot) + ".asm";
 }
 
-int handle_flags(int argc, char** argv, string* path, string* outpath) {
+int handle_flags(int argc, char** argv) {
   bool bitwidth_set = false;
   bool path_set = false;
   bool outpath_set = false;
-  for(size_t i = 1; i < argc; i++) {
+  for(int i = 1; i < argc; i++) {
     if(strcmp(argv[i], "-f") == 0 && set_bitwidth(argv[i+1]) == 0) {
       bitwidth_set = true;
       i++;
@@ -86,8 +86,8 @@ int handle_flags(int argc, char** argv, string* path, string* outpath) {
     return -1;
   }
   if(!outpath_set) {
-    (*outpath) = get_outpath((*path));
-    cerr << "flag -o (output file) not set, using " << (*outpath) << endl;
+    outputfile = get_outpath(inputfile);
+    cerr << "flag -o (output file) not set, using " << outputfile << endl;
   }
   return 0;
 }
