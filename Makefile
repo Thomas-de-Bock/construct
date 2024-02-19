@@ -18,7 +18,8 @@ SRCS =	construct.cpp \
 		deconstruct.cpp \
 		construct_debug.cpp \
 		reconstruct.cpp \
-		construct_flags.cpp
+		construct_flags.cpp \
+    construct_error.cpp
 
 SRCS := $(addprefix $(SRC_FOLDER)/, $(SRCS))
 OBJS = $(SRCS:.cpp=.o)

@@ -4,7 +4,6 @@
 using namespace std;
 int if_amnt = 0;
 int while_amnt = 0;
-CON_BITWIDTH bitwidth = BIT64;
 
 string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth) {
   switch(bitwidth) {

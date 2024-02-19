@@ -1,8 +1,8 @@
 #ifndef CON_TYPES_H
 #define CON_TYPES_H
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 enum CON_BITWIDTH {
   BIT8,
@@ -17,7 +17,8 @@ enum CON_COMPARISON {
   L,
   G,
   LE,
-  GE
+  GE,
+  COMPARISON_ERROR
 };
 
 enum CON_TOKENTYPE {
@@ -28,7 +29,7 @@ enum CON_TOKENTYPE {
   FUNCTION,
   CMD,
   MACRO,
-  FUNCALL
+  FUNCALL,
 };
 
 
@@ -86,7 +87,14 @@ struct con_cmd {
 
 struct con_funcall {
   std::string funcname;
-  std:: vector<std::string> arguments;
+  std::vector<std::string> arguments;
+};
+
+struct linedata {
+  std::string* line;
+  std::vector<std::string>* line_split;
+  std::string* filename;
+  size_t line_num;
 };
 
 #endif
