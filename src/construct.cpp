@@ -18,7 +18,6 @@ int main(int argc, char** argv) {
   std::stringstream buffer;
   buffer << inpfile.rdbuf();
   std::vector<con_token*> tokens = parse_construct(buffer.str());
-
   // Make _start global
   con_token* glob_tok = new con_token();
   glob_tok->tok_type = CMD;

@@ -251,6 +251,7 @@ vector<con_token*> parse_construct(string code) {
   for(size_t i = 0; i < code_split.size(); i++) {
     if(currentlinedata != NULL) {
       free(currentlinedata);
+      currentlinedata = NULL;
     }
     // Check if it contains any alphabet chars
     if(code_split[i].find_first_of("abcdefghijklmnopqrstuvwxyz!") == std::string::npos) {
