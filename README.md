@@ -52,6 +52,7 @@ Using the naming of the conditional jump instructions, construct supports the fo
 - `g: greater`
 - `le: less or equal`
 - `ge: greater or equal`
+
 Neither side of the comparison can contains whitespaces.
 
 # Use
