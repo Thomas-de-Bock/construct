@@ -5,10 +5,21 @@
 
 void string_split(std::string& input, std::vector<std::string>& output, std::string delimiter, bool token_compress_on) {
     std::string token;
-    std::istringstream tokenStream(input);
-    while (std::getline(tokenStream, token, delimiter[0])) {
-        if (!token.empty() || !token_compress_on) {
-            output.push_back(token);
+    size_t start = 0, end = 0;
+    while (start < input.length()) {
+        end = input.find_first_of(delimiter, start);
+        if (end == std::string::npos) {
+            token = input.substr(start);
+            if (!token.empty() || !token_compress_on) {
+                output.push_back(token);
+            }
+            break;
+        } else {
+            token = input.substr(start, end - start);
+            if (!token.empty() || !token_compress_on) {
+                output.push_back(token);
+            }
+            start = end + 1;
         }
     }
 }
@@ -171,7 +182,7 @@ con_function* parse_function(linedata* linedata) {
   string_split(*linedata->line, line_split, "():,", false);
   linedata->line_split = &line_split;
   tok_function->name = line_split[0].substr(9, line_split[0].size()-9);
-  for(size_t i = 1; i < line_split.size()-2; i++) {
+  for(size_t i = 1; i < line_split.size()-1; i++) {
     if(line_split[i].empty()) {
       continue;
     }
@@ -185,7 +196,7 @@ con_funcall* parse_funcall(linedata* linedata) {
   string_split(*linedata->line, line_split, "(),", false);
   linedata->line_split = &line_split;
   tok_funcall->funcname = line_split[0].substr(5, line_split[0].size()-5);
-  for(size_t i = 1; i < line_split.size()-1; i++) {
+  for(size_t i = 1; i < line_split.size(); i++) {
     if(line_split[i].empty()) {
       continue;
     }
