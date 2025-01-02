@@ -3,35 +3,7 @@ Construct is an abstraction over x86 NASM Assembly. It adds features such as whi
 It currently supports 64, 32, 16 and 8 bit modes.
 
 # Syntax
-Construct is indent sentitive and requires all indentations to use the tab character. Below is a code example:
-```
-extern printf
-
-section .text
-function strlwr(str):
-	while byte[str] ne 0:
-		if byte[str] ge 65:
-			if byte[str] le 90:
-				!crntchr sil
-				mov crntchr, byte[str]
-				add crntchr, 32
-				mov byte[str], crntchr
-		inc str
-
-
-function main():
-	call strlwr(teststring)
-
-	mov rax, 0
-	call printf(fmt, teststring)
-
-	mov rax, 60
-	syscall
-
-section .data
-teststring db "HeLlO WoRlD", 0
-fmt: db "%s", 10, 0
-```
+Construct is indent sentitive and requires all indentations to use the tab character.
 - Sections: Sections do not add any indentation, construct currently supports text, data and bss sections.
 - While loops: While loops take a single [conditional](#conditionals) statement
 - If statements: If statements, like while loops, take a single [conditional](#conditionals) statement
