@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   if (!inpfile.good()) {
-    std::cerr << "Input file is not good" << std::endl;
+    std::cerr << "Error reading input file" << std::endl;
     return 1;
   }
 
