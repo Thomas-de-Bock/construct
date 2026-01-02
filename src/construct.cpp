@@ -6,15 +6,35 @@
 
 int main(int argc, char** argv) {
   if(handle_flags(argc, argv) != 0) {
-    std::cout << "Some flag(s) not set" << std::endl;
-    return 0;
+    std::cerr << "Some flag(s) not set" << std::endl;
+    return -1;
   }
   if(inputfile.empty()) {
-    std::cout << "No input file specified" << std::endl;
-    return 0;
+    std::cerr << "No input file specified" << std::endl;
+    return -1;
   }
 
   std::ifstream inpfile(inputfile);
+  if (!inpfile.is_open()) {
+    std::cerr << "Could not open input file" << std::endl;
+    return 1;
+  }
+  if (!inpfile.good()) {
+    std::cerr << "Error reading input file" << std::endl;
+    return 1;
+  }
+
+  std::ofstream outfile;
+  outfile.open(outputfile);
+  if (!outfile.is_open()) {
+    std::cerr << "Could not open output file" << std::endl;
+    return 2;
+  }
+  if (!outfile.good()) {
+    std::cerr << "Output file is not good" << std::endl;
+    return 2;
+  }
+
   std::stringstream buffer;
   buffer << inpfile.rdbuf();
   std::vector<con_token*> tokens = parse_construct(buffer.str());
@@ -36,8 +56,7 @@ int main(int argc, char** argv) {
   apply_macros(tokens, empty_macros);
   linearize_tokens(tokens);
 
-  std::ofstream outfile;
-  outfile.open(outputfile);
   outfile << tokens_to_nasm(tokens);
   outfile.close();
+  return 0;
 }

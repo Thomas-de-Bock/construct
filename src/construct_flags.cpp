@@ -28,6 +28,28 @@ int set_bitwidth(char* argv) {
   return -1;
 }
 
+/**
+ * Returns the output path for a given input path.
+ *
+ * If the input path has no extension, ".construct.asm" is appended.
+ * If the input path has an extension:
+ * - If the extension is ".asm", it is replaced with ".construct.asm"
+ *   (e.g. "foo.asm" -> "foo.construct.asm")
+ * - Otherwise, the extension is removed and ".construct.asm" is appended
+ *   (e.g. "foo.con" -> "foo.asm")
+ */
+string get_outpath(string path) {
+  if (path.find(".") == string::npos) {
+    return path + ".construct.asm";
+  }
+  int last_dot = path.find_last_of(".");
+  std::string extension = path.substr(last_dot);
+  if (extension == ".asm") {
+    return path.substr(0, last_dot) + ".construct.asm";
+  }
+  return path.substr(0, last_dot) + ".asm";
+}
+
 int handle_flags(int argc, char** argv) {
   bool bitwidth_set = false;
   bool path_set = false;
@@ -78,16 +100,16 @@ int handle_flags(int argc, char** argv) {
     return -1;
   }
   if(!bitwidth_set) {
-    cout << "flag -f (format) not set" << endl;
+    cerr << "flag -f (format) not set" << endl;
     return -1;
   }
   if(!path_set) {
-    cout << "flag -i (input file) not set" << endl;
+    cerr << "flag -i (input file) not set" << endl;
     return -1;
   }
   if(!outpath_set) {
-    cout << "flag -o (output file) not set" << endl;
-    return -1;
+    outputfile = get_outpath(inputfile);
+    cerr << "flag -o (output file) not set, using " << outputfile << endl;
   }
   return 0;
 }

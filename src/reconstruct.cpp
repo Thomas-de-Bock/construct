@@ -96,6 +96,7 @@ string reg_to_str(uint8_t call_num, CON_BITWIDTH bitwidth) {
       }
     break;
   }
+  return "unknown";
 }
 
 string comparison_to_string(CON_COMPARISON condition) {
@@ -112,6 +113,8 @@ string comparison_to_string(CON_COMPARISON condition) {
       return "le";
     case GE:
       return "ge";
+    default:
+      break;
   }
   return "unknown";
 }
@@ -130,7 +133,10 @@ CON_COMPARISON get_comparison_inverse(CON_COMPARISON condition) {
       return G;
     case GE:
       return L;
+    default:
+      break;
   }
+  throw std::runtime_error("Invalid comparison");
 }
 
 void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
@@ -190,6 +196,8 @@ void apply_macro_to_token(con_token& token, vector<con_macro> macros) {
           token.tok_cmd->arg2.replace(pos, crntmacro->macro.size(), crntmacro->value);
         }
       break;
+      default:
+      break;
     }
   }
 }
@@ -201,7 +209,7 @@ void apply_funcalls(std::vector<con_token*>& tokens) {
     }
     vector<string>* args = &tokens[i]->tok_funcall->arguments;
     vector<con_token*> arg_tokens;
-    for(int j = 0; j < args->size(); j++) {
+    for(size_t j = 0; j < args->size(); j++) {
       con_token* arg_tok = new con_token();
       arg_tok->tok_type = CMD;
       con_cmd* arg_cmd = new con_cmd();
@@ -239,7 +247,7 @@ void apply_functions(std::vector<con_token*>& tokens) {
     con_tag* functag = new con_tag;
     tag_tok->tok_tag = functag;
     functag->name = crntfunc->name;
-    for(int j = 0; j < crntfunc->arguments.size(); j++) {
+    for(size_t j = 0; j < crntfunc->arguments.size(); j++) {
       con_token* arg_tok = new con_token;
       arg_tok->tok_type = MACRO;
       con_macro* arg_macro = new con_macro;
@@ -265,12 +273,12 @@ void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros) {
       con_macro* f_macro = new con_macro(); 
       f_macro->macro = "";
       f_macro->value = "";
-      for(int j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
+      for(size_t j = 0; j < tokens[i]->tok_macro->macro.size(); j++) {
         if(tokens[i]->tok_macro->macro[j] != ' ') {
           f_macro->macro += tokens[i]->tok_macro->macro[j];
         }
       }
-      for(int j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
+      for(size_t j = 0; j < tokens[i]->tok_macro->value.size(); j++) {
         if(tokens[i]->tok_macro->value[j] != ' ')
           f_macro->value += tokens[i]->tok_macro->value[j];
       }
@@ -285,7 +293,7 @@ void apply_macros(vector<con_token*>& tokens, vector<con_macro> knownmacros) {
   }
 }
 void apply_whiles(vector<con_token*>& tokens) {
-  for(size_t i = 0; i< tokens.size(); i++) {
+  for(size_t i = 0; i < tokens.size(); i++) {
     apply_whiles(tokens[i]->tokens);
     if(tokens[i]->tok_type != WHILE) {
       continue;
@@ -337,7 +345,7 @@ void apply_whiles(vector<con_token*>& tokens) {
   }
 }
 void apply_ifs(vector<con_token*>& tokens) {
-  for(size_t i = 0; i< tokens.size(); i++) {
+  for(size_t i = 0; i < tokens.size(); i++) {
     apply_ifs(tokens[i]->tokens);
     if(tokens[i]->tok_type != IF) {
       continue;

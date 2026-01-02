@@ -241,6 +241,7 @@ con_token* parse_line(linedata* linedata) {
       break;
     case FUNCALL:
       token->tok_funcall = parse_funcall(linedata);
+      break;
     case SECTION:
       token->tok_section = parse_section(linedata);
       break;
